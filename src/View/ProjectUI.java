@@ -36,13 +36,11 @@ public class ProjectUI {
                 "❗La surface saisie n'est pas valide. Veuillez entrer un nombre positif."
                 );
 
-
         Project project = new Project();
         project.setProjectName(projectName);
         project.setArea(kitchenArea);
         project.setClient(client);
         handleCreateMaterial(project);
-
     }
 
     private void handleCreateLabor(Project project) {
@@ -79,14 +77,15 @@ public class ProjectUI {
 
             //controller here
 
-            System.out.print("Voulez-vous ajouter un autre matériau ? (oui/non) : ");
+            System.out.print("Voulez-vous ajouter un autre main-d'oeuvre ? (oui/non) : ");
             choice = scanner.nextLine().trim().toLowerCase();
             while (!choice.equals("oui") && !choice.equals("non")) {
                 System.out.print("Réponse invalide, veuillez répondre par 'oui' ou 'non': ");
                 choice = scanner.nextLine().trim().toLowerCase();
             }
         }
-        System.out.println("fifnish");
+        //new quotationUI(scanner)
+
     }
 
 
@@ -149,6 +148,9 @@ public class ProjectUI {
             Project project = entry.getValue();
             System.out.println("╔══\uD83D\uDEE0\uFE0F\uD83D\uDD27\uD83D\uDD28\uD83D\uDD29\uD83D\uDD27\uD83D\uDD28\uD83D\uDD29\uD83D\uDD27\uD83D\uDD28\uD83D\uDD29\uD83D\uDD27\uD83D\uDD28\uD83D\uDD27\uD83D\uDD28\uD83D\uDD29\uD83D\uDD27\uD83D\uDD28══╗");
             System.out.println("    \uD83C\uDF1F  Nom du Projet: " + project.getProjectName());
+            System.out.println("     👤 Client : " + project.getClient().getName());
+            System.out.println("    \uD83D\uDCCD Adresse : " + project.getClient().getAddress());
+            System.out.println("    \uD83D\uDCDE Téléphone : " + project.getClient().getPhone());
             System.out.println("    \uD83D\uDCCF  Surface : " + project.getArea());
             System.out.println("    \uD83D\uDCBC  Marge bénéficiaire :" + project.getProfitMargin());
             System.out.println("    \uD83D\uDCB0  Coût Total: " + project.getTotalCost());

@@ -11,6 +11,7 @@ public class CostCalculation {
        return material.getQuantity() * material.getUnitCost() * material.getQualityCoefficient() + material.getTransportCost();
     }
 
+
     public static Double calculateMaterialsCost(List<Material> materials) {
         double materialsCost = 0.0;
         for(Material material: materials){
@@ -19,9 +20,11 @@ public class CostCalculation {
         return materialsCost;
     }
 
+
     public static Double calculateLaborCost(Labor labor) {
         return labor.getHourlyRate() * labor.getWorkingHours() * labor.getWorkerProductivity();
     }
+
 
     public static Double calculateLaborsCost(List<Labor> labors) {
         double laborsCost = 0.0;
@@ -31,17 +34,21 @@ public class CostCalculation {
         return laborsCost;
     }
 
+
     public static Double calculateCostWithTVA(List<Material> materials, List<Labor> labors, Double vatRate){
         return (calculateMaterialsCost(materials) + calculateLaborsCost(labors)) * (1 + vatRate / 100);
     }
+
 
     public static Double calculateCostBeforeMarge(Double materialsTotalCost, Double laborsTotalCost){
         return materialsTotalCost + laborsTotalCost;
     }
 
+
     public static Double calculateProfitMarge(Double materialsTotalCost, Double laborsTotalCost, Double profitMarginPercentage){
         return (materialsTotalCost + laborsTotalCost) * profitMarginPercentage / 100;
     }
+
 
     public static Double calculateProjectCost(Double materialsTotalCost, Double laborsTotalCost,Double profitMargin){
         return calculateCostBeforeMarge(materialsTotalCost, laborsTotalCost) + calculateProfitMarge(materialsTotalCost, laborsTotalCost,profitMargin);

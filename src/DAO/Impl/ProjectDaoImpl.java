@@ -34,12 +34,14 @@ public class ProjectDaoImpl implements ProjectDAO {
 
         try (PreparedStatement stmt = connection.prepareStatement(sql)) {
             stmt.setString(1, ProjectStatus.inProgress.name());
-            ResultSet rs = stmt.executeQuery();
 
-            while (rs.next()) {
-                Project project = mapResultSet(rs);
-                projectMap.put(project.getId(), project);
+            try (ResultSet rs = stmt.executeQuery()) {
+                while (rs.next()) {
+                    Project project = mapResultSet(rs);
+                    projectMap.put(project.getId(), project);
+                }
             }
+
         } catch (SQLException e) {
             throw new DatabaseException("❗Error occurred while getting in-progress projects"+ e.getMessage(), e);
         }
