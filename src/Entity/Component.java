@@ -6,13 +6,11 @@ import java.util.UUID;
 public class Component {
     private UUID id;
     private String unitName;
-    private Double unitCost;
     private ComponentType componentType;
     private Double vatRate;
     private Project project;
 
-    public Component(Double unitCost, ComponentType componentType, Double vatRate, Project project) {
-        this.unitCost = unitCost;
+    public Component(ComponentType componentType, Double vatRate, Project project) {
         this.componentType = componentType;
         this.vatRate = vatRate;
         this.project = project;
@@ -42,15 +40,6 @@ public class Component {
     public void setUnitName(String unitName) {
         this.unitName = unitName;
     }
-
-    public Double getUnitCost() {
-        return unitCost;
-    }
-
-    public void setUnitCost(Double unitCost) {
-        this.unitCost = unitCost;
-    }
-
 
 
     public ComponentType getComponentType() {

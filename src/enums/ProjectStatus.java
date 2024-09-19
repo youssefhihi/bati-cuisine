@@ -1,5 +1,5 @@
 package enums;
 
 public enum ProjectStatus {
-    enCours, terminer, annuler
+    inProgress, completed, canceled
 }
