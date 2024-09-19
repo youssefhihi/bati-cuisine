@@ -22,27 +22,31 @@ public class ProjectDaoImpl implements ProjectDAO {
     }
 
     @Override
-    public Map<UUID, Project> getInProgress() throws DatabaseException{
-        Map<UUID,Project> projectMap = new HashMap<>();
-        String  sql = """
-                    SELECT p.id,p.projectName, p.profitMargin, p.totalCost, p.area
-                    c.id AS client_id, c.name, c.address, c.phone
-                    FROM projects p
-                    JOIN clients c ON p.client_id = c.id
-                    WHERE projectStatus = ?
-                    """;
-        try (PreparedStatement stmt = connection.prepareStatement(sql)){
+    public Map<UUID, Project> getInProgress() throws DatabaseException {
+        Map<UUID, Project> projectMap = new HashMap<>();
+        String sql = """
+            SELECT p.id, p.projectName, p.profitMargin, p.totalCost, p.area, p.projectStatus, 
+                   c.id AS client_id, c.name, c.address, c.phone ,c.isProfessional
+            FROM projects p
+            JOIN clients c ON p.client_id = c.id
+            WHERE p.projectStatus = ?::projectStatus
+            """;
+
+        try (PreparedStatement stmt = connection.prepareStatement(sql)) {
             stmt.setString(1, ProjectStatus.inProgress.name());
             ResultSet rs = stmt.executeQuery();
-            while (rs.next()){
+
+            while (rs.next()) {
                 Project project = mapResultSet(rs);
-                projectMap.put(project.getId(),project);
+                projectMap.put(project.getId(), project);
             }
         } catch (SQLException e) {
-            throw new DatabaseException("❗Error occurred while getting in progress projects", e);
+            throw new DatabaseException("❗Error occurred while getting in-progress projects"+ e.getMessage(), e);
         }
+
         return projectMap;
     }
+
 
     public  Boolean create(Project project) throws DatabaseException {
         String sql = """

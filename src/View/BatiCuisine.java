@@ -2,7 +2,9 @@ package View;
 
 import ConnectDB.DBConnection;
 import Services.Impl.ClientServiceImpl;
+import Services.Impl.ProjectServiceImpl;
 import Services.Interfaces.ClientService;
+import Services.Interfaces.ProjectService;
 import Utility.ViewUtility;
 
 import java.sql.Connection;
@@ -13,6 +15,7 @@ public class BatiCuisine {
     private static final Scanner scanner = new Scanner(System.in);
     private static final Connection connection = DBConnection.connect();
     private static final ClientService clientService = new ClientServiceImpl(connection);
+    private static final ProjectService projectService = new ProjectServiceImpl(connection);
 
     public void batiCuisineApp(){
             System.out.println("🛠️ === Bienvenue dans l'application de gestion des projets de rénovation de cuisines === 🛠️");
@@ -26,11 +29,10 @@ public class BatiCuisine {
             choice = ViewUtility.enterChoice(choice);
             switch (choice){
                 case 1:
-                    System.out.println("🔨 Vous avez choisi de créer un nouveau projet !");
                     new ClientUI(scanner,clientService).clientUIMain();
                     break;
                 case 2:
-                    System.out.println("📂 Voici la liste des projets existants :");
+                    new ProjectUI(scanner, projectService).showProjectInProgress();
                     break;
                 case 3:
                     System.out.println("💸 Calcul du coût du projet en cours...");

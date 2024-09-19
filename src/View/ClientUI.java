@@ -49,29 +49,22 @@ public class ClientUI {
 
 
     private void handleAddClient(){
-        System.out.print("~~~> 👤 Nom du client : ");
-        String name = scanner.nextLine();
-        while (!InputsValidation.isStringValid(name)){
-            System.out.println("❗Le nom ne peut pas être vide.");
-            System.out.print("~~~> 👤 Veuillez entrer un nom valide : ");
-            name =scanner.nextLine();
-        }
+        String name =  InputsValidation.isStringValid(
+                "~~~> 👤 Nom du client : ",
+                "❗Le nom ne peut pas être vide."
+            );
 
-        System.out.print("~~~> \uD83D\uDCCD Adresse du client : ");
-        String address = scanner.nextLine();
-        while (!InputsValidation.isStringValid(address)){
-            System.out.println("❗L'Adresse ne peut pas être vide.");
-            System.out.print("~~~> \uD83D\uDCCD Veuillez entrer une Adresse valide : ");
-            address =scanner.nextLine();
-        }
 
-        System.out.print("~~~> \uD83D\uDCDE téléphone du client : ");
-        String phone = scanner.nextLine();
-        while (!InputsValidation.isPhoneValid(phone)){
-            System.out.println("❗Le numéro de téléphone doit contenir exactement 10 nombre.");
-            System.out.print("~~~> \uD83D\uDCDE Veuillez entrer une téléphone valide : ");
-            phone =scanner.nextLine();
-        }
+
+        String address = InputsValidation.isStringValid(
+                "~~~> \uD83D\uDCCD Adresse du client : ",
+                "❗L'Adresse ne peut pas être vide."
+            );
+
+        String phone = InputsValidation.isPhoneValid(
+                "~~~> \uD83D\uDCDE téléphone du client : ",
+                "❗Le numéro de téléphone doit contenir exactement 10 nombre.");
+
 
         Boolean isProfessional = null;
         while (isProfessional == null) {
@@ -117,13 +110,11 @@ public class ClientUI {
     private void handleSearchClient() {
         System.out.println("~~~ 🕵️‍♂️ Rechercher un Client ~~~");
 
-        System.out.print("~~~> 👤 Veuillez Nom du client : ");
-        String name = scanner.nextLine();
-        while (!InputsValidation.isStringValid(name)) {
-            System.out.println("❗Le nom ne peut pas être vide.");
-            System.out.print("~~~> 👤 Veuillez entrer un nom valide : ");
-            name = scanner.nextLine();
-        }
+        String name = InputsValidation.isStringValid(
+                "~~~> 👤 Veuillez Nom du client : ",
+                "❗Le nom ne peut pas être vide."
+            );
+
         Map<UUID, Client> clients = new HashMap<>();
         try {
             clients = clientService.searchClient(name);

@@ -1,21 +1,23 @@
 package Utility;
 
+import enums.ProjectStatus;
+
 import java.util.Scanner;
 
 public class ViewUtility {
 
     private static final Scanner scanner = new Scanner(System.in);
 
-    public static Integer enterChoice(int choice){
+    public static Integer enterChoice(int choice) {
         try {
             System.out.print("👉 Select your option: ");
             choice = scanner.nextInt();
             scanner.nextLine();
-        }catch (Exception e){
+        } catch (Exception e) {
             scanner.nextLine();
             choice = 0;
         }
-        return  choice;
+        return choice;
     }
 
     public static void showLoading(String message) {
@@ -31,4 +33,17 @@ public class ViewUtility {
         System.out.println();
     }
 
+
+    public static String getProjectStatus(ProjectStatus status) {
+        switch (status) {
+            case inProgress:
+                return "🚧 En cours";
+            case completed:
+                return "✅ Terminé";
+            case canceled:
+                return "❌ Annulé";
+            default:
+                return "❓ Inconnu";
+        }
+    }
 }
