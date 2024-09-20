@@ -11,7 +11,6 @@ public class InputsValidation {
             try {
                 System.out.print(prompt);
                 input = scanner.nextLine();
-                scanner.nextLine();
                 if (input.trim().isEmpty()) {
                     System.out.println(errorMessage);
                 }
@@ -29,7 +28,6 @@ public class InputsValidation {
             try {
                 System.out.print(prompt);
                 input = scanner.nextLine();
-                scanner.nextLine();
                 if (input.trim().isEmpty()) {
                     System.out.println(errorMessage);
                 }

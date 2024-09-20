@@ -93,25 +93,30 @@ public class ProjectUI {
     private void handleCreateMaterial(Project project) {
         String choice = "oui";
         while (choice.equals("oui")) {
-            // Material name input
+            // Nom du matétriau
             String materialName = InputsValidation.isStringValid(
                     "~~~> 🧱 Entrez le nom du matériau : ",
                     "❗Le nom du matériau ne peut pas être vide."
             );
 
-            // Refactored numeric inputs
+            // Quantité
             double quantity = InputsValidation.isDoubleValid(
                     "~~~> 📦 Entrez la quantité de ce matériau (en litres) : ",
                     "❗La quantité doit être supérieure à zéro."
             );
+            // Coût unitaire
             double unitCost = InputsValidation.isDoubleValid(
                     "~~~> 💶 Entrez le coût unitaire de ce matériau (€/litre) : ",
                     "❗Le coût unitaire doit être supérieur à zéro."
             );
+
+            //Coût du transport du matériau
             double transportCost = InputsValidation.isDoubleValid(
                     "~~~> 🚛 Entrez le coût de transport de ce matériau (€) : ",
                     "❗Le coût de transport doit être supérieur à zéro."
             );
+
+            // Coefficient reflétant la qualité du matériau
             double qualityCoefficient = InputsValidation.isDoubleValid(
                     "~~~> 🏗️ Entrez le coefficient de qualité du matériau (1.0 = standard, > 1.0 = haute qualité) : ",
                     "❗Le coefficient de qualité doit être supérieur à zéro."
