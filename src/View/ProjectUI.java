@@ -44,7 +44,9 @@ public class ProjectUI {
     }
 
     private void handleCreateLabor(Project project) {
+        Map<Integer,Labor>labors = new HashMap<>();
         String choice = "oui";
+        Integer index = 1;
         while (choice.equals("oui")) {
             //labor type input
             String laborType = InputsValidation.isStringValid("~~~> 🛠️ Entrez le type de main-d'oeuvre (e.g., Ouvrier de base, Spécialiste) : ",
@@ -74,6 +76,8 @@ public class ProjectUI {
             labor.setHourlyRate(hourlyRate);
             labor.setWorkingHours(hoursWorked);
             labor.setWorkerProductivity(productivityFactor);
+            labor.setProject(project);
+            labors.put(index++,labor);
 
             //controller here
 
@@ -91,7 +95,9 @@ public class ProjectUI {
 
 
     private void handleCreateMaterial(Project project) {
+        Map<Integer,Material> materials = new HashMap<>();
         String choice = "oui";
+        Integer index = 1;
         while (choice.equals("oui")) {
             // Nom du matétriau
             String materialName = InputsValidation.isStringValid(
@@ -129,6 +135,7 @@ public class ProjectUI {
             material.setTransportCost(transportCost);
             material.setQualityCoefficient(qualityCoefficient);
             material.setProject(project);
+            materials.put(index++,material);
 
             // Ask user if they want to add another material
             System.out.print("Voulez-vous ajouter un autre matériau ? (oui/non) : ");

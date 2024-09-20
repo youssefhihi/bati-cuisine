@@ -2,7 +2,7 @@ package Utility;
 
 import Entity.Labor;
 import Entity.Material;
-import java.util.List;
+import java.util.Map;
 
 public class CostCalculation {
 
@@ -12,12 +12,8 @@ public class CostCalculation {
     }
 
 
-    public static Double calculateMaterialsCost(List<Material> materials) {
-        double materialsCost = 0.0;
-        for(Material material: materials){
-            materialsCost +=  calculateMaterialCost(material);
-        }
-        return materialsCost;
+    public static Double calculateMaterialsCost(Map<Integer,Material> materials) {
+        return materials.values().stream().mapToDouble(CostCalculation::calculateMaterialCost).sum();
     }
 
 
@@ -26,16 +22,12 @@ public class CostCalculation {
     }
 
 
-    public static Double calculateLaborsCost(List<Labor> labors) {
-        double laborsCost = 0.0;
-        for(Labor labor: labors){
-            laborsCost +=  calculateLaborCost(labor);
-        }
-        return laborsCost;
+    public static Double calculateLaborsCost(Map<Integer,Labor> labors) {
+        return labors.values().stream().mapToDouble(CostCalculation::calculateLaborCost).sum();
     }
 
 
-    public static Double calculateCostWithTVA(List<Material> materials, List<Labor> labors, Double vatRate){
+    public static Double calculateCostWithTVA(Map<Integer,Material> materials, Map<Integer,Labor> labors, Double vatRate){
         return (calculateMaterialsCost(materials) + calculateLaborsCost(labors)) * (1 + vatRate / 100);
     }
 

@@ -6,24 +6,16 @@ public class Labor extends Component {
     private Double hourlyRate;
     private Double workingHours;
     private Double workerProductivity;
-    private String laborType;
 
-    public Labor( ComponentType componentType, Double vatRate, Project project, Double hourlyRate, Double workingHours, Double workerProductivity, String laborType) {
-        super(componentType, vatRate, project);
+
+    public Labor(String unitName, ComponentType componentType, Double vatRate, Project project, Double hourlyRate, Double workingHours, Double workerProductivity) {
+        super(unitName, componentType, vatRate, project);
         this.hourlyRate = hourlyRate;
         this.workingHours = workingHours;
         this.workerProductivity = workerProductivity;
-        this.laborType = laborType;
     }
     public Labor(){}
 
-    public String getLaborType() {
-        return laborType;
-    }
-
-    public void setLaborType(String laborType) {
-        this.laborType = laborType;
-    }
 
     public Double getHourlyRate() {
         return hourlyRate;
