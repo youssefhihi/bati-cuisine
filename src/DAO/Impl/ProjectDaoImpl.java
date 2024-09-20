@@ -12,6 +12,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Optional;
 import java.util.UUID;
 
 public class ProjectDaoImpl implements ProjectDAO {
@@ -50,11 +51,16 @@ public class ProjectDaoImpl implements ProjectDAO {
     }
 
 
-    public  Boolean create(Project project) throws DatabaseException {
+    public Optional<Project> create(Project project) throws DatabaseException {
         String sql = """
-                    INSERT INTO projects
-                    (projectName, profitMargin, totalCost, projectStatus, area, client_id)
-                    VALUES (?,?,?,?,?,?)
+                    WITH inserted_project AS (
+                         INSERT INTO projects (projectName, profitMargin, totalCost, projectStatus, area, VATRate, client_id)
+                         VALUES (?,?, ?, ?, ?, ?, ?)
+                         RETURNING *
+                    )SELECT inserted_project.*,
+                        c.id AS client_id, c.name, c.address ,c.phone, c.isProfessional
+                    FROM inserted_project
+                    JOIN clients c ON inserted_project.client_id = c.id;
                 """;
         try(PreparedStatement stmt = connection.prepareStatement(sql)){
             stmt.setString(1,project.getProjectName());
@@ -62,11 +68,14 @@ public class ProjectDaoImpl implements ProjectDAO {
             stmt.setDouble(3,project.getTotalCost());
             stmt.setString(4,project.getProjectStatus().name());
             stmt.setDouble(5,project.getArea());
-            stmt.setObject(6,project.getClient().getId());
-            stmt.executeUpdate();
-            return true;
+            stmt.setDouble(6, project.getVATRate());
+            stmt.setObject(7,project.getClient().getId());
+            ResultSet rs = stmt.executeQuery();
+
+            return Optional.of(mapResultSet(rs));
+
         } catch (SQLException e) {
-            throw new DatabaseException("❗Error occurred while getting in progress projects", e);
+            throw new DatabaseException("❗Error occurred while creating  project"+ e.getMessage(), e);
         }
     }
 
@@ -83,6 +92,7 @@ public class ProjectDaoImpl implements ProjectDAO {
                 rs.getDouble("totalCost"),
                 ProjectStatus.valueOf(rs.getString("projectStatus")),
                 rs.getDouble("area"),
+                rs.getDouble("VATRate"),
                 client);
         project.setId((UUID) rs.getObject("id"));
 

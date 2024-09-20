@@ -5,28 +5,37 @@ import Entity.Labor;
 import Entity.Material;
 import Entity.Project;
 import Exceptions.DatabaseException;
+import Services.Interfaces.LaborService;
+import Services.Interfaces.MaterialService;
 import Services.Interfaces.ProjectService;
+import Utility.CostCalculation;
 import Utility.Validation.InputsValidation;
 import Utility.ViewUtility;
 
 import java.sql.Connection;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Scanner;
-import java.util.UUID;
+import java.sql.SQLException;
+import java.util.*;
 
 public class ProjectUI {
 
     private final Scanner scanner;
     private final ProjectService projectService;
+    private final LaborService laborService;
+    private final MaterialService materialService;
+    private final  ClientUI clientUI;
 
-    public ProjectUI(Scanner scanner, ProjectService projectService){
+    public ProjectUI(Scanner scanner, ProjectService projectService, LaborService laborService, MaterialService materialService,ClientUI clientUI){
         this.scanner = scanner;
         this.projectService = projectService;
+        this.clientUI = clientUI;
+        this.laborService =laborService;
+        this.materialService =materialService;
 
     }
 
-    public void handleCreateProject(Client client){
+    public void handleCreateProject(){
+        Client client = clientUI.getClientForProject();
+
         String projectName = InputsValidation.isStringValid(
                 "~~~> \uD83C\uDFD7\uFE0F  Entrez le nom du projet : ",
                 "❗Le nom du projet ne peut pas être vide."
@@ -40,61 +49,35 @@ public class ProjectUI {
         project.setProjectName(projectName);
         project.setArea(kitchenArea);
         project.setClient(client);
-        handleCreateMaterial(project);
+        Map<Integer,Material> materials = handleCreateMaterial();
+        Map<Integer,Labor> labors = handleCreateLabor();
+        String choiceVAT = ViewUtility.yesORno("Souhaitez-vous appliquer une TVA au projet ? (oui/non)");
+       if(choiceVAT.equals("oui")) {
+           double vatRate = InputsValidation.isDoubleValid(
+                   "Entrez le pourcentage de TVA (%) : ",
+                   "❗Le le pourcentage de TVA doit être supérieur à zéro."
+           );
+           project.setVATRate(vatRate);
+           String choicePM = ViewUtility.yesORno("Souhaitez-vous appliquer une marge bénéficiaire au projet ?(oui/non)");
+           if (choicePM.equals("oui")) {
+               double profitMargin = InputsValidation.isDoubleValid(
+                       "Entrez le pourcentage de marge bénéficiaire (%)",
+                       "❗Le le pourcentage de marge bénéficiaire doit être supérieur à zéro."
+               );
+               project.setProfitMargin(profitMargin);
+           }
+       }
+       try {
+           Optional<Project> insertedProject = projectService.createProject(project);
+           materials.values().forEach(m -> m.setProject(insertedProject.get()));
+           labors.values().forEach(l -> l.setProject(insertedProject.get()));
+           laborService.createLabors(labors);
+           materialService.createMaterials(materials);
+       } catch (DatabaseException | SQLException e) {
+           System.err.println(e.getMessage());
+       }
     }
-
-    private void handleCreateLabor(Project project) {
-        Map<Integer,Labor>labors = new HashMap<>();
-        String choice = "oui";
-        Integer index = 1;
-        while (choice.equals("oui")) {
-            //labor type input
-            String laborType = InputsValidation.isStringValid("~~~> 🛠️ Entrez le type de main-d'oeuvre (e.g., Ouvrier de base, Spécialiste) : ",
-                    "❗Le type de main-d'oeuvre ne peut pas être vide."
-                );
-            // hourly rate input
-            double hourlyRate = InputsValidation.isDoubleValid(
-                    "~~~> 💶 Entrez le taux horaire de cette main-d'œuvre (€/h) : ",
-                    "❗Le taux horaire doit être supérieur à zéro."
-            );
-
-            // hours worked input
-            double hoursWorked = InputsValidation.isDoubleValid(
-                    "~~~> ⏱️ Entrez le nombre d'heures travaillées : ",
-                    "❗Le nombre d'heures doit être supérieur à zéro."
-            );
-
-            //productivity factor input
-            double productivityFactor = InputsValidation.isDoubleValid(
-                    "~~~> ⚙️ Entrez le facteur de productivité (1.0 = standard, > 1.0 = haute productivité) : ",
-                    "❗Le facteur de productivité doit être supérieur à zéro."
-            );
-
-            Labor labor = new Labor();
-            labor.setLaborType(laborType);
-            labor.setProject(project);
-            labor.setHourlyRate(hourlyRate);
-            labor.setWorkingHours(hoursWorked);
-            labor.setWorkerProductivity(productivityFactor);
-            labor.setProject(project);
-            labors.put(index++,labor);
-
-            //controller here
-
-            System.out.print("Voulez-vous ajouter un autre main-d'oeuvre ? (oui/non) : ");
-            choice = scanner.nextLine().trim().toLowerCase();
-            while (!choice.equals("oui") && !choice.equals("non")) {
-                System.out.print("Réponse invalide, veuillez répondre par 'oui' ou 'non': ");
-                choice = scanner.nextLine().trim().toLowerCase();
-            }
-        }
-        //new quotationUI(scanner)
-
-    }
-
-
-
-    private void handleCreateMaterial(Project project) {
+    private Map<Integer, Material> handleCreateMaterial() {
         Map<Integer,Material> materials = new HashMap<>();
         String choice = "oui";
         Integer index = 1;
@@ -134,19 +117,114 @@ public class ProjectUI {
             material.setUnitCost(unitCost);
             material.setTransportCost(transportCost);
             material.setQualityCoefficient(qualityCoefficient);
-            material.setProject(project);
             materials.put(index++,material);
 
             // Ask user if they want to add another material
-            System.out.print("Voulez-vous ajouter un autre matériau ? (oui/non) : ");
-            choice = scanner.nextLine().trim().toLowerCase();
-            while (!choice.equals("oui") && !choice.equals("non")) {
-                System.out.print("Réponse invalide, veuillez répondre par 'oui' ou 'non': ");
-                choice = scanner.nextLine().trim().toLowerCase();
-            }
+          choice = ViewUtility.yesORno("Voulez-vous ajouter un autre matériau ? (oui/non) : ");
         }
-        handleCreateLabor(project);
+        return materials;
     }
+
+    private Map<Integer,Labor> handleCreateLabor() {
+        Map<Integer,Labor> labors = new HashMap<>();
+        String choice = "oui";
+        Integer index = 1;
+        while (choice.equals("oui")) {
+            //labor type input
+            String name = InputsValidation.isStringValid("~~~> 🛠️ Entrez le type de main-d'oeuvre (e.g., Ouvrier de base, Spécialiste) : ",
+                    "❗Le type de main-d'oeuvre ne peut pas être vide."
+                );
+            // hourly rate input
+            double hourlyRate = InputsValidation.isDoubleValid(
+                    "~~~> 💶 Entrez le taux horaire de cette main-d'œuvre (€/h) : ",
+                    "❗Le taux horaire doit être supérieur à zéro."
+            );
+
+            // hours worked input
+            double hoursWorked = InputsValidation.isDoubleValid(
+                    "~~~> ⏱️ Entrez le nombre d'heures travaillées : ",
+                    "❗Le nombre d'heures doit être supérieur à zéro."
+            );
+
+            //productivity factor input
+            double productivityFactor = InputsValidation.isDoubleValid(
+                    "~~~> ⚙️ Entrez le facteur de productivité (1.0 = standard, > 1.0 = haute productivité) : ",
+                    "❗Le facteur de productivité doit être supérieur à zéro."
+            );
+
+            Labor labor = new Labor();
+            labor.setUnitName(name);
+            labor.setHourlyRate(hourlyRate);
+            labor.setWorkingHours(hoursWorked);
+            labor.setWorkerProductivity(productivityFactor);
+            labors.put(index++,labor);
+
+            choice = ViewUtility.yesORno("Voulez-vous ajouter un autre main-d'oeuvre ? (oui/non) : ");
+
+        }
+        return labors;
+
+
+    }
+
+
+
+
+
+//
+//
+//    public void handleCalculCosts(Project project, Map<Integer, Material> materials , Map<Integer, Labor> labors){
+//        System.out.println("--- Calcul du coût total ---");
+//       String choiceVAT = ViewUtility.yesORno("Souhaitez-vous appliquer une TVA au projet ? (oui/non)");
+//       if(choiceVAT.equals("oui")){
+//           double vatRate = InputsValidation.isDoubleValid(
+//                   "Entrez le pourcentage de TVA (%) : ",
+//                   "❗Le le pourcentage de TVA doit être supérieur à zéro."
+//           );
+//           String choicePM = ViewUtility.yesORno("Souhaitez-vous appliquer une marge bénéficiaire au projet ?(oui/non)");
+//           if (choicePM.equals("oui")){
+//               double profitMargin = InputsValidation.isDoubleValid(
+//                       "Entrez le pourcentage de marge bénéficiaire (%)",
+//                       "❗Le le pourcentage de marge bénéficiaire doit être supérieur à zéro."
+//               );
+//
+//               ViewUtility.showLoading("Calcul du coût en cours");
+//               System.out.println("📊 --- Résultat du Calcul ---");
+//               System.out.println("🏗️ Nom du projet : " + project.getProjectName());
+//               System.out.println("👤 Client : " + project.getClient().getName());
+//               System.out.println("📍 Adresse du chantier : " + project.getClient().getAddress());
+//               System.out.println("📏 Surface : "+ project.getArea() +" m²");
+//
+//               System.out.println("\n🛠️ --- Détail des Coûts ---");
+//
+//               // Matériaux
+//               System.out.println("1️⃣ Matériaux :");
+//               System.out.println("   🧱 Carrelage : 710.00 € (quantité : 20 m², coût unitaire : 30 €/m², qualité : 1.1, transport : 50 €)");
+//               System.out.println("   🎨 Peinture : 170.00 € (quantité : 10 litres, coût unitaire : 15 €/litre, transport : 20 €)");
+//               System.out.println("   **Coût total des matériaux avant TVA : 880.00 €**");
+//               System.out.println("   **Coût total des matériaux avec TVA (20%) : 1 056.00 €**");
+//
+//               // Main-d'œuvre
+//               System.out.println("\n2️⃣ Main-d'œuvre :");
+//               System.out.println("   👷‍♂️ Ouvrier de base : 800.00 € (taux horaire : 20 €/h, heures travaillées : 40 h, productivité : 1.0)");
+//               System.out.println("   👷‍♀️ Ouvrier spécialisé : 770.00 € (taux horaire : 35 €/h, heures travaillées : 20 h, productivité : 1.1)");
+//               System.out.println("   **Coût total de la main-d'œuvre avant TVA : 1 570.00 €**");
+//               System.out.println("   **Coût total de la main-d'œuvre avec TVA (20%) : 1 884.00 €**");
+//
+//               // Total avant marge et marge bénéficiaire
+//               System.out.println("\n📈 Coût total avant marge : 2 940.00 €");
+//               System.out.println("💼 Marge bénéficiaire (15%) : 441.00 €");
+//
+//               // Coût total final
+//               System.out.println("\n💰 **Coût total final du projet : 3 381.00 €**");
+//
+//           }
+//       }
+//    }
+//
+
+
+
 
 
     public void showProjectInProgress(){

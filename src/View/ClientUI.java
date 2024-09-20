@@ -7,10 +7,7 @@ import Utility.Validation.InputsValidation;
 import Utility.ViewUtility;
 
 import java.sql.Connection;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Scanner;
-import java.util.UUID;
+import java.util.*;
 
 public class ClientUI {
 
@@ -23,32 +20,29 @@ public class ClientUI {
 
     }
 
-    public void clientUIMain(){
+    public Client getClientForProject(){
         int choice = 0;
-        do{
+        Client client = new Client();
             System.out.println("🔍 Souhaitez-vous chercher un client existant ou en ajouter un nouveau ?");
+
             System.out.println(" ➤ [1] 🔎 Chercher un client existant");
             System.out.println(" ➤ [2] ➕ Ajouter un nouveau client");
-            System.out.println(" ➤ [3] ❌ Quitter");
+
             choice = ViewUtility.enterChoice(choice);
 
             switch (choice){
-                case 1:
-                    handleSearchClient();
-                    break;
-                case 2:
-                    handleAddClient();
-                    break;
-                default:
-                    System.out.println("❌ Choix invalide. Veuillez réessayer.");
+                case 1 -> client = handleSearchClient();
+                case 2 -> client = handleAddClient();
+                default -> System.out.println("❌ Choix invalide. Veuillez réessayer.");
             }
 
-        }while (choice != 3);
+        return client;
+
     }
 
 
 
-    private void handleAddClient(){
+    private Client handleAddClient(){
         String name =  InputsValidation.isStringValid(
                 "~~~> 👤 Nom du client : ",
                 "❗Le nom ne peut pas être vide."
@@ -67,47 +61,29 @@ public class ClientUI {
 
 
         Boolean isProfessional = null;
-        while (isProfessional == null) {
-            System.out.print("~~~> \uD83E\uDDD1\u200D\uD83D\uDCBC Le client est-il professionnel ? (oui/non) : ");
-            String professionalInput = scanner.nextLine().trim().toLowerCase();
-            switch (professionalInput) {
-                case "oui":
-                    isProfessional = true;
-                    break;
-                case "non":
-                    isProfessional = false;
-                    break;
-                default:
-                    System.out.println("Réponse invalide, veuillez répondre par 'oui' ou 'non'.");
-                    break;
-            }
+        String choiceProfessional = ViewUtility.yesORno("~~~> \uD83E\uDDD1\u200D\uD83D\uDCBC Le client est-il professionnel ? (oui/non) : ");
+        if(choiceProfessional.equals("oui")){
+            isProfessional = true;
+        } else if (choiceProfessional.equals("non")) {
+            isProfessional = false;
         }
 
         Client client = new Client(name,address,phone,isProfessional);
+        Client clientInserted = new Client();
         try {
-            clientService.createClient(client);
+         clientInserted = clientService.createClient(client);
         }catch (DatabaseException e){
             System.err.println("❗ Error occurred while adding the client: " + e.getMessage());
         }
-        Boolean continued = null;
-        while (continued == null) {
-            System.out.println("Souhaitez-vous continuer avec ce client ? (oui/non) :");
-            String continuedInput = scanner.nextLine().trim().toLowerCase();
-            switch (continuedInput) {
-                case "oui":
-                    // new ProjectUI(connection,scanner).handleCreateProject(client);
-                    break;
-                case "non":
-                    return;
-                default:
-                    System.out.println("Réponse invalide, veuillez répondre par 'oui' ou 'non'.");
-                    break;
-            }
-        }
+//       String choice = ViewUtility.yesORno("Souhaitez-vous continuer avec ce client ? (oui/non) : ");
+//        if(choice.equals("oui")){
+//            associateProjectToClient(clientInserted);
+//        }
+        return clientInserted;
 
     }
 
-    private void handleSearchClient() {
+    private Client handleSearchClient() {
         System.out.println("~~~ 🕵️‍♂️ Rechercher un Client ~~~");
 
         String name = InputsValidation.isStringValid(
@@ -133,20 +109,31 @@ public class ClientUI {
             System.out.println("╚═══════════════════════════════════════════╝");
             System.out.println(" ");
         }
-        while (true) {
-            System.out.println("Souhaitez-vous continuer avec ce client ? (oui/non) :");
-            String continuedInput = scanner.nextLine().trim().toLowerCase();
-            switch (continuedInput) {
-                case "oui":
-                    //new ProjectUI(connection,scanner).handleCreateProject(client);
-                    return;
-                case "non":
-                    return;
-                default:
-                    System.out.println("Réponse invalide, veuillez répondre par 'oui' ou 'non'.");
-                    break;
-            }
-        }
+
+        Integer selectedIndex = InputsValidation.isIntegerValid(
+                "Veuillez sélectionner un client par son numéro : ",
+                "❗ Index invalide. Veuillez réessayer.",
+                clients.size()
+            );
+
+        return clients.entrySet().stream()
+                    .skip(selectedIndex - 1)
+                    .findFirst()
+                    .map(Map.Entry::getValue)
+                    .orElse(null);
+
+
+//        String choiceContinue = ViewUtility.yesORno("Souhaitez-vous continuer avec ce client ? (oui/non) : ");
+//        if (choiceContinue.equals("oui")){
+//            associateProjectToClient(choosedClient);
+//        }
+
+
+    }
+
+
+
+    private void associateProjectToClient(Client client){
 
     }
 

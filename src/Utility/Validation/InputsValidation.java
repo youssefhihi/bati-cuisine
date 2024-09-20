@@ -57,6 +57,23 @@ public class InputsValidation {
             }
             return input;
         }
+    public static  Integer isIntegerValid(String prompt, String errorMessage, Integer endNum){
+        Integer input = 0;
+        while ( input <= 0 || input > endNum) {
+            try {
+                System.out.print(prompt);
+                input = scanner.nextInt();
+                scanner.nextLine();
+                if (input <= 0 || input > endNum) {
+                    System.out.println(errorMessage);
+                }
+            } catch (Exception e) {
+                System.out.println("❗Erreur : Veuillez entrer un nombre valide.");
+                scanner.nextLine();
+            }
+        }
+        return input;
+    }
 
 
     public static double isDoubleValid(String prompt, String errorMessage) {

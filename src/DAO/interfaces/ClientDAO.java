@@ -8,7 +8,7 @@ import java.util.Optional;
 import java.util.UUID;
 
 public interface ClientDAO {
-    Boolean create(Client client) throws DatabaseException;
+    Optional<Client> create(Client client) throws DatabaseException;
     Boolean update(Client client) throws DatabaseException;
     Boolean delete(UUID id) throws DatabaseException;
     Map<UUID, Client> search(String query) throws DatabaseException;

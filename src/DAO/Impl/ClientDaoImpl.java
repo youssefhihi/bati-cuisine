@@ -22,18 +22,21 @@ public class ClientDaoImpl implements ClientDAO {
     }
 
     @Override
-    public Boolean create(Client client) throws DatabaseException {
-        String sql = "INSERT INTO clients (name, address, phone, isProfessional) VALUES (?,?,?,?)";
+    public Optional<Client> create(Client client) throws DatabaseException {
+        String sql = "INSERT INTO clients (name, address, phone, isProfessional) VALUES (?,?,?,?) Returning *";
         try (PreparedStatement stmt = connection.prepareStatement(sql)) {
             stmt.setString(1, client.getName());
             stmt.setString(2, client.getAddress());
             stmt.setString(3,client.getPhone());
             stmt.setBoolean(4,client.getIsProfessional());
-            stmt.executeUpdate();
-            return true;
+           ResultSet rs =  stmt.executeQuery();
+           if (rs.next()){
+               return Optional.of(mapResultSetForClient(rs));
+           }
         }catch (Exception e){
             throw new DatabaseException("❗Error occurred while creating a client", e);
         }
+        return Optional.empty();
     }
     @Override
     public Boolean update(Client client) throws DatabaseException {
