@@ -7,8 +7,11 @@ import Exceptions.DatabaseException;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
+import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.HashMap;
 import java.util.Map;
+import java.util.UUID;
 
 public class MaterialDaoImpl implements MaterialDAO {
 
@@ -39,6 +42,7 @@ public class MaterialDaoImpl implements MaterialDAO {
                     stmt.setDouble(6,material.getQuantity());
                     stmt.setDouble(7,material.getQualityCoefficient());
                     stmt.setDouble(8,material.getUnitCost());
+                    stmt.executeUpdate();
                 }
             }
             connection.commit();

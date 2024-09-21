@@ -55,7 +55,7 @@ public class ProjectDaoImpl implements ProjectDAO {
         String sql = """
                     WITH inserted_project AS (
                          INSERT INTO projects (projectName, profitMargin, totalCost, projectStatus, area, VATRate, client_id)
-                         VALUES (?,?, ?, ?, ?, ?, ?)
+                         VALUES (?,?, ?, ?::projectStatus, ?, ?, ?)
                          RETURNING *
                     )SELECT inserted_project.*,
                         c.id AS client_id, c.name, c.address ,c.phone, c.isProfessional
@@ -71,9 +71,11 @@ public class ProjectDaoImpl implements ProjectDAO {
             stmt.setDouble(6, project.getVATRate());
             stmt.setObject(7,project.getClient().getId());
             ResultSet rs = stmt.executeQuery();
+            if (rs.next()){
 
-            return Optional.of(mapResultSet(rs));
-
+                    return Optional.of(mapResultSet(rs));
+            }
+        return Optional.empty();
         } catch (SQLException e) {
             throw new DatabaseException("❗Error occurred while creating  project"+ e.getMessage(), e);
         }

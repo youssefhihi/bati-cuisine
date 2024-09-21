@@ -8,7 +8,7 @@ public class CostCalculation {
 
 
     public static Double calculateMaterialCost(Material material) {
-       return material.getQuantity() * material.getUnitCost() * material.getQualityCoefficient() + material.getTransportCost();
+       return (material.getQuantity() * material.getUnitCost() * material.getQualityCoefficient() + material.getTransportCost()) * (1 + material.getVatRate() / 100);
     }
 
 
@@ -18,7 +18,7 @@ public class CostCalculation {
 
 
     public static Double calculateLaborCost(Labor labor) {
-        return labor.getHourlyRate() * labor.getWorkingHours() * labor.getWorkerProductivity();
+        return (labor.getHourlyRate() * labor.getWorkingHours() * labor.getWorkerProductivity()) * (1 + labor.getVatRate() / 100);
     }
 
 

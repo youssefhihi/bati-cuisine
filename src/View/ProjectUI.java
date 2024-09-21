@@ -11,6 +11,7 @@ import Services.Interfaces.ProjectService;
 import Utility.CostCalculation;
 import Utility.Validation.InputsValidation;
 import Utility.ViewUtility;
+import enums.ProjectStatus;
 
 import java.sql.Connection;
 import java.sql.SQLException;
@@ -35,13 +36,17 @@ public class ProjectUI {
 
     public void handleCreateProject(){
         Client client = clientUI.getClientForProject();
-
+        String continueClient = ViewUtility.yesORno("Souhaitez-vous continuer avec ce client ? (oui/non)");
+        if (continueClient.equals("non")){
+            return;
+        }
         String projectName = InputsValidation.isStringValid(
                 "~~~> \uD83C\uDFD7\uFE0F  Entrez le nom du projet : ",
                 "❗Le nom du projet ne peut pas être vide."
             );
 
-        double kitchenArea = InputsValidation.isDoubleValid("~~~> 📐 Entrez la surface de la cuisine (en m²) : ",
+        double kitchenArea = InputsValidation.isDoubleValid(
+                "~~~> 📐 Entrez la surface de la cuisine (en m²) : ",
                 "❗La surface saisie n'est pas valide. Veuillez entrer un nombre positif."
                 );
 
@@ -49,36 +54,49 @@ public class ProjectUI {
         project.setProjectName(projectName);
         project.setArea(kitchenArea);
         project.setClient(client);
+        project.setProjectStatus(ProjectStatus.inProgress);
         Map<Integer,Material> materials = handleCreateMaterial();
         Map<Integer,Labor> labors = handleCreateLabor();
+
         String choiceVAT = ViewUtility.yesORno("Souhaitez-vous appliquer une TVA au projet ? (oui/non)");
        if(choiceVAT.equals("oui")) {
            double vatRate = InputsValidation.isDoubleValid(
                    "Entrez le pourcentage de TVA (%) : ",
                    "❗Le le pourcentage de TVA doit être supérieur à zéro."
            );
-           project.setVATRate(vatRate);
-           String choicePM = ViewUtility.yesORno("Souhaitez-vous appliquer une marge bénéficiaire au projet ?(oui/non)");
-           if (choicePM.equals("oui")) {
-               double profitMargin = InputsValidation.isDoubleValid(
-                       "Entrez le pourcentage de marge bénéficiaire (%)",
-                       "❗Le le pourcentage de marge bénéficiaire doit être supérieur à zéro."
-               );
-               project.setProfitMargin(profitMargin);
-           }
+               project.setVATRate(vatRate);
        }
+
+       String choicePM = ViewUtility.yesORno("Souhaitez-vous appliquer une marge bénéficiaire au projet ?(oui/non)");
+        if (choicePM.equals("oui")) {
+            double profitMargin = InputsValidation.isDoubleValid(
+                    "Entrez le pourcentage de marge bénéficiaire (%)",
+                    "❗Le le pourcentage de marge bénéficiaire doit être supérieur à zéro."
+               );
+            project.setProfitMargin(profitMargin);
+        }
+
+        project.setTotalCost(
+                CostCalculation.calculateProjectCost(
+                CostCalculation.calculateMaterialsCost(materials),
+                CostCalculation.calculateLaborsCost(labors),
+                project.getProfitMargin()
+        ));
+
        try {
            Optional<Project> insertedProject = projectService.createProject(project);
            materials.values().forEach(m -> m.setProject(insertedProject.get()));
            labors.values().forEach(l -> l.setProject(insertedProject.get()));
            laborService.createLabors(labors);
            materialService.createMaterials(materials);
+
        } catch (DatabaseException | SQLException e) {
            System.err.println(e.getMessage());
        }
     }
     private Map<Integer, Material> handleCreateMaterial() {
         Map<Integer,Material> materials = new HashMap<>();
+        System.out.println(" 🧱--- Ajout des matériaux --- 🧱");
         String choice = "oui";
         Integer index = 1;
         while (choice.equals("oui")) {
@@ -110,6 +128,10 @@ public class ProjectUI {
                     "~~~> 🏗️ Entrez le coefficient de qualité du matériau (1.0 = standard, > 1.0 = haute qualité) : ",
                     "❗Le coefficient de qualité doit être supérieur à zéro."
             );
+            double vatRate = InputsValidation.isDoubleValid(
+                    "Entrez le pourcentage de TVA du " + materialName+" (%): ",
+                    "le pourcentage de TVA doit être supérieur à zéro."
+            );
 
             Material material = new Material();
             material.setUnitName(materialName);
@@ -117,6 +139,7 @@ public class ProjectUI {
             material.setUnitCost(unitCost);
             material.setTransportCost(transportCost);
             material.setQualityCoefficient(qualityCoefficient);
+            material.setVatRate(vatRate);
             materials.put(index++,material);
 
             // Ask user if they want to add another material
@@ -127,6 +150,7 @@ public class ProjectUI {
 
     private Map<Integer,Labor> handleCreateLabor() {
         Map<Integer,Labor> labors = new HashMap<>();
+        System.out.println("🛠️--- Ajout de la main-d'œuvre ---🛠️");
         String choice = "oui";
         Integer index = 1;
         while (choice.equals("oui")) {
@@ -151,12 +175,17 @@ public class ProjectUI {
                     "~~~> ⚙️ Entrez le facteur de productivité (1.0 = standard, > 1.0 = haute productivité) : ",
                     "❗Le facteur de productivité doit être supérieur à zéro."
             );
+            double vatRate = InputsValidation.isDoubleValid(
+                    "Entrez le pourcentage de TVA du " + name +" (%): ",
+                    "le pourcentage de TVA doit être supérieur à zéro."
+            );
 
             Labor labor = new Labor();
             labor.setUnitName(name);
             labor.setHourlyRate(hourlyRate);
             labor.setWorkingHours(hoursWorked);
             labor.setWorkerProductivity(productivityFactor);
+            labor.setVatRate(vatRate);
             labors.put(index++,labor);
 
             choice = ViewUtility.yesORno("Voulez-vous ajouter un autre main-d'oeuvre ? (oui/non) : ");
