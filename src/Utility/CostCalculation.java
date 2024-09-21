@@ -2,40 +2,32 @@ package Utility;
 
 import Entity.Labor;
 import Entity.Material;
-import java.util.List;
+import java.util.Map;
 
 public class CostCalculation {
 
 
     public static Double calculateMaterialCost(Material material) {
-       return material.getQuantity() * material.getUnitCost() * material.getQualityCoefficient() + material.getTransportCost();
+       return (material.getQuantity() * material.getUnitCost() * material.getQualityCoefficient() + material.getTransportCost()) * (1 + material.getVatRate() / 100);
     }
 
 
-    public static Double calculateMaterialsCost(List<Material> materials) {
-        double materialsCost = 0.0;
-        for(Material material: materials){
-            materialsCost +=  calculateMaterialCost(material);
-        }
-        return materialsCost;
+    public static Double calculateMaterialsCost(Map<Integer,Material> materials) {
+        return materials.values().stream().mapToDouble(CostCalculation::calculateMaterialCost).sum();
     }
 
 
     public static Double calculateLaborCost(Labor labor) {
-        return labor.getHourlyRate() * labor.getWorkingHours() * labor.getWorkerProductivity();
+        return (labor.getHourlyRate() * labor.getWorkingHours() * labor.getWorkerProductivity()) * (1 + labor.getVatRate() / 100);
     }
 
 
-    public static Double calculateLaborsCost(List<Labor> labors) {
-        double laborsCost = 0.0;
-        for(Labor labor: labors){
-            laborsCost +=  calculateLaborCost(labor);
-        }
-        return laborsCost;
+    public static Double calculateLaborsCost(Map<Integer,Labor> labors) {
+        return labors.values().stream().mapToDouble(CostCalculation::calculateLaborCost).sum();
     }
 
 
-    public static Double calculateCostWithTVA(List<Material> materials, List<Labor> labors, Double vatRate){
+    public static Double calculateCostWithTVA(Map<Integer,Material> materials, Map<Integer,Labor> labors, Double vatRate){
         return (calculateMaterialsCost(materials) + calculateLaborsCost(labors)) * (1 + vatRate / 100);
     }
 

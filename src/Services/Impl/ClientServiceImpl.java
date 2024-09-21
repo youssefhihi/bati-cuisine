@@ -19,14 +19,15 @@ public class ClientServiceImpl implements ClientService {
         this.clientRepo = new ClientRepoImpl(connection);
     }
     @Override
-    public void createClient(Client client) throws DatabaseException {
-            Boolean isAdded = clientRepo.create(client);
-            if (isAdded) {
-                System.out.println("✅ Client added successfully!");
-            } else {
-                System.out.println("❗ Failed to add Client. An unexpected error occurred.");
-            }
-
+    public Client createClient(Client client) throws DatabaseException {
+           Optional<Client> inserted =  clientRepo.create(client);
+           if (inserted.isPresent()){
+               System.out.println("✅ Client added successfully!");
+               return inserted.get();
+           }else{
+               System.out.println("❗ Failed to add Client. An unexpected error occurred.");
+               return null;
+           }
     }
 
 

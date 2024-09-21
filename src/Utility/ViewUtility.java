@@ -34,6 +34,16 @@ public class ViewUtility {
     }
 
 
+    public static String  yesORno(String prompt){
+        System.out.print(prompt);
+       String choice = scanner.nextLine().trim().toLowerCase();
+        while (!choice.equals("oui") && !choice.equals("non")) {
+            System.out.print("Réponse invalide, veuillez répondre par 'oui' ou 'non': ");
+            choice = scanner.nextLine().trim().toLowerCase();
+        }
+        return choice;
+    }
+
     public static String getProjectStatus(ProjectStatus status) {
         switch (status) {
             case inProgress:

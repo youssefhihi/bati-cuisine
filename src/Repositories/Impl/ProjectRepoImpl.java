@@ -8,6 +8,7 @@ import Repositories.Interfaces.ProjectRepo;
 
 import java.sql.Connection;
 import java.util.Map;
+import java.util.Optional;
 import java.util.UUID;
 
 public class ProjectRepoImpl implements ProjectRepo {
@@ -23,7 +24,7 @@ public class ProjectRepoImpl implements ProjectRepo {
     }
 
     @Override
-    public Boolean create(Project project)throws DatabaseException {
+    public Optional<Project> create(Project project)throws DatabaseException {
         return projectDAO.create(project);
     }
 }

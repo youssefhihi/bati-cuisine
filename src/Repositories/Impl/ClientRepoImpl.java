@@ -20,7 +20,7 @@ public class ClientRepoImpl implements ClientRepo {
 
 
     @Override
-    public Boolean create(Client client) throws DatabaseException {
+    public Optional<Client> create(Client client) throws DatabaseException {
         return clientDAO.create(client);
     }
 

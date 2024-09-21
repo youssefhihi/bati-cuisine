@@ -2,8 +2,12 @@ package View;
 
 import ConnectDB.DBConnection;
 import Services.Impl.ClientServiceImpl;
+import Services.Impl.LaborServiceImpl;
+import Services.Impl.MaterialServiceImpl;
 import Services.Impl.ProjectServiceImpl;
 import Services.Interfaces.ClientService;
+import Services.Interfaces.LaborService;
+import Services.Interfaces.MaterialService;
 import Services.Interfaces.ProjectService;
 import Utility.ViewUtility;
 
@@ -14,8 +18,14 @@ public class BatiCuisine {
 
     private static final Scanner scanner = new Scanner(System.in);
     private static final Connection connection = DBConnection.connect();
+    //services
     private static final ClientService clientService = new ClientServiceImpl(connection);
     private static final ProjectService projectService = new ProjectServiceImpl(connection);
+    private static final MaterialService materialService = new MaterialServiceImpl(connection);
+    private static final LaborService laborService = new LaborServiceImpl(connection);
+    //UI
+    private static final ClientUI clientUI = new ClientUI(scanner,clientService);
+
 
     public void batiCuisineApp(){
             System.out.println("🛠️ === Bienvenue dans l'application de gestion des projets de rénovation de cuisines === 🛠️");
@@ -29,10 +39,10 @@ public class BatiCuisine {
             choice = ViewUtility.enterChoice(choice);
             switch (choice){
                 case 1:
-                    new ClientUI(scanner,clientService).clientUIMain();
+                    new ProjectUI(scanner, projectService,laborService,materialService,clientUI).handleCreateProject();
                     break;
                 case 2:
-                    new ProjectUI(scanner, projectService).showProjectInProgress();
+                    new ProjectUI(scanner, projectService,laborService,materialService,clientUI).showProjectInProgress();
                     break;
                 case 3:
                     System.out.println("💸 Calcul du coût du projet en cours...");

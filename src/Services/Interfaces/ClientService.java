@@ -9,7 +9,7 @@ import java.util.UUID;
 
 public interface ClientService {
 
-    void createClient(Client client) throws DatabaseException;
+    Client createClient(Client client) throws DatabaseException;
     void updateClient(Client client) throws DatabaseException;
     void deleteClient(UUID id) throws DatabaseException;
     Map<UUID, Client> searchClient(String query) throws DatabaseException;

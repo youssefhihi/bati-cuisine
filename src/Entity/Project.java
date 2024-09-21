@@ -10,18 +10,28 @@ public class Project {
     private Double totalCost;
     private ProjectStatus projectStatus;
     private Double area;
+    private Double VATRate;
     private Client client;
 
-    public Project(String projectName, Double profitMargin, Double totalCost, ProjectStatus projectStatus,Double area, Client client) {
+    public Project(String projectName, Double profitMargin, Double totalCost, ProjectStatus projectStatus,Double area, Double VATRate, Client client) {
         this.projectName = projectName;
         this.profitMargin = profitMargin;
         this.totalCost = totalCost;
         this.projectStatus = projectStatus;
         this.area = area;
+        this.VATRate = VATRate;
         this.client = client;
     }
 
     public Project() {}
+
+    public Double getVATRate() {
+        return VATRate;
+    }
+
+    public void setVATRate(Double VATRate) {
+        this.VATRate = VATRate;
+    }
 
     public Double getArea() {
         return area;

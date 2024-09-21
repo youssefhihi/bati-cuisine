@@ -8,6 +8,7 @@ import Services.Interfaces.ProjectService;
 
 import java.sql.Connection;
 import java.util.Map;
+import java.util.Optional;
 import java.util.UUID;
 
 public class ProjectServiceImpl implements ProjectService {
@@ -24,13 +25,7 @@ public class ProjectServiceImpl implements ProjectService {
     }
 
     @Override
-    public void createProject(Project project)throws DatabaseException{
-        Boolean isAdded = projectRepo.create(project);
-        if (isAdded){
-            System.out.println("✅ Project Added successfully!");
-        } else {
-            System.out.println("❗ Failed to added Client. An unexpected error occurred.");
-        }
-
+    public Optional<Project> createProject(Project project)throws DatabaseException{
+        return projectRepo.create(project);
     }
 }

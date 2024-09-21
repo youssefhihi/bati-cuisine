@@ -15,6 +15,7 @@ public class Client {
         this.phone = phone;
         this.isProfessional = isProfessional;
     }
+    public Client(){}
 
     public UUID getId() {
         return id;
