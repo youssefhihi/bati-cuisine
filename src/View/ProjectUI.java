@@ -11,6 +11,7 @@ import Services.Interfaces.ProjectService;
 import Utility.CostCalculation;
 import Utility.Validation.InputsValidation;
 import Utility.ViewUtility;
+import enums.ComponentType;
 import enums.ProjectStatus;
 
 import java.sql.Connection;
@@ -55,8 +56,8 @@ public class ProjectUI {
         project.setArea(kitchenArea);
         project.setClient(client);
         project.setProjectStatus(ProjectStatus.inProgress);
-        Map<Integer,Material> materials = handleCreateMaterial();
-        Map<Integer,Labor> labors = handleCreateLabor();
+        Map<UUID,Material> materials = handleCreateMaterial();
+        Map<UUID,Labor> labors = handleCreateLabor();
 
         String choiceVAT = ViewUtility.yesORno("Souhaitez-vous appliquer une TVA au projet ? (oui/non)");
        if(choiceVAT.equals("oui")) {
@@ -78,8 +79,8 @@ public class ProjectUI {
 
         project.setTotalCost(
                 CostCalculation.calculateProjectCost(
-                CostCalculation.calculateMaterialsCost(materials),
-                CostCalculation.calculateLaborsCost(labors),
+                materials,
+                labors,
                 project.getProfitMargin()
         ));
 
@@ -89,16 +90,18 @@ public class ProjectUI {
            labors.values().forEach(l -> l.setProject(insertedProject.get()));
            laborService.createLabors(labors);
            materialService.createMaterials(materials);
-
+            String choiceCO = ViewUtility.yesORno("vou voulez voir le cout total de ce projet ? oui/non : ");
+           if (choiceCO.equals("oui") && insertedProject.isPresent()){
+               handleCalculCosts(insertedProject.get());
+           }
        } catch (DatabaseException | SQLException e) {
            System.err.println(e.getMessage());
        }
     }
-    private Map<Integer, Material> handleCreateMaterial() {
-        Map<Integer,Material> materials = new HashMap<>();
+    private Map<UUID, Material> handleCreateMaterial() {
+        Map<UUID,Material> materials = new HashMap<>();
         System.out.println(" 🧱--- Ajout des matériaux --- 🧱");
         String choice = "oui";
-        Integer index = 1;
         while (choice.equals("oui")) {
             // Nom du matétriau
             String materialName = InputsValidation.isStringValid(
@@ -136,11 +139,12 @@ public class ProjectUI {
             Material material = new Material();
             material.setUnitName(materialName);
             material.setQuantity(quantity);
+            material.setComponentType(ComponentType.material);
             material.setUnitCost(unitCost);
             material.setTransportCost(transportCost);
             material.setQualityCoefficient(qualityCoefficient);
             material.setVatRate(vatRate);
-            materials.put(index++,material);
+            materials.put(UUID.randomUUID(),material);
 
             // Ask user if they want to add another material
           choice = ViewUtility.yesORno("Voulez-vous ajouter un autre matériau ? (oui/non) : ");
@@ -148,11 +152,10 @@ public class ProjectUI {
         return materials;
     }
 
-    private Map<Integer,Labor> handleCreateLabor() {
-        Map<Integer,Labor> labors = new HashMap<>();
+    private Map<UUID,Labor> handleCreateLabor() {
+        Map<UUID,Labor> labors = new HashMap<>();
         System.out.println("🛠️--- Ajout de la main-d'œuvre ---🛠️");
         String choice = "oui";
-        Integer index = 1;
         while (choice.equals("oui")) {
             //labor type input
             String name = InputsValidation.isStringValid("~~~> 🛠️ Entrez le type de main-d'oeuvre (e.g., Ouvrier de base, Spécialiste) : ",
@@ -181,12 +184,13 @@ public class ProjectUI {
             );
 
             Labor labor = new Labor();
+            labor.setComponentType(ComponentType.labor);
             labor.setUnitName(name);
             labor.setHourlyRate(hourlyRate);
             labor.setWorkingHours(hoursWorked);
             labor.setWorkerProductivity(productivityFactor);
             labor.setVatRate(vatRate);
-            labors.put(index++,labor);
+            labors.put(UUID.randomUUID(),labor);
 
             choice = ViewUtility.yesORno("Voulez-vous ajouter un autre main-d'oeuvre ? (oui/non) : ");
 
@@ -200,57 +204,62 @@ public class ProjectUI {
 
 
 
-//
-//
-//    public void handleCalculCosts(Project project, Map<Integer, Material> materials , Map<Integer, Labor> labors){
-//        System.out.println("--- Calcul du coût total ---");
-//       String choiceVAT = ViewUtility.yesORno("Souhaitez-vous appliquer une TVA au projet ? (oui/non)");
-//       if(choiceVAT.equals("oui")){
-//           double vatRate = InputsValidation.isDoubleValid(
-//                   "Entrez le pourcentage de TVA (%) : ",
-//                   "❗Le le pourcentage de TVA doit être supérieur à zéro."
-//           );
-//           String choicePM = ViewUtility.yesORno("Souhaitez-vous appliquer une marge bénéficiaire au projet ?(oui/non)");
-//           if (choicePM.equals("oui")){
-//               double profitMargin = InputsValidation.isDoubleValid(
-//                       "Entrez le pourcentage de marge bénéficiaire (%)",
-//                       "❗Le le pourcentage de marge bénéficiaire doit être supérieur à zéro."
-//               );
-//
-//               ViewUtility.showLoading("Calcul du coût en cours");
-//               System.out.println("📊 --- Résultat du Calcul ---");
-//               System.out.println("🏗️ Nom du projet : " + project.getProjectName());
-//               System.out.println("👤 Client : " + project.getClient().getName());
-//               System.out.println("📍 Adresse du chantier : " + project.getClient().getAddress());
-//               System.out.println("📏 Surface : "+ project.getArea() +" m²");
-//
-//               System.out.println("\n🛠️ --- Détail des Coûts ---");
-//
-//               // Matériaux
-//               System.out.println("1️⃣ Matériaux :");
-//               System.out.println("   🧱 Carrelage : 710.00 € (quantité : 20 m², coût unitaire : 30 €/m², qualité : 1.1, transport : 50 €)");
-//               System.out.println("   🎨 Peinture : 170.00 € (quantité : 10 litres, coût unitaire : 15 €/litre, transport : 20 €)");
-//               System.out.println("   **Coût total des matériaux avant TVA : 880.00 €**");
-//               System.out.println("   **Coût total des matériaux avec TVA (20%) : 1 056.00 €**");
-//
-//               // Main-d'œuvre
-//               System.out.println("\n2️⃣ Main-d'œuvre :");
-//               System.out.println("   👷‍♂️ Ouvrier de base : 800.00 € (taux horaire : 20 €/h, heures travaillées : 40 h, productivité : 1.0)");
-//               System.out.println("   👷‍♀️ Ouvrier spécialisé : 770.00 € (taux horaire : 35 €/h, heures travaillées : 20 h, productivité : 1.1)");
-//               System.out.println("   **Coût total de la main-d'œuvre avant TVA : 1 570.00 €**");
-//               System.out.println("   **Coût total de la main-d'œuvre avec TVA (20%) : 1 884.00 €**");
-//
-//               // Total avant marge et marge bénéficiaire
-//               System.out.println("\n📈 Coût total avant marge : 2 940.00 €");
-//               System.out.println("💼 Marge bénéficiaire (15%) : 441.00 €");
-//
-//               // Coût total final
-//               System.out.println("\n💰 **Coût total final du projet : 3 381.00 €**");
-//
-//           }
-//       }
-//    }
-//
+
+
+    public void handleCalculCosts(Project project){
+        Map<UUID,Material> materialMap = new HashMap<>();
+        Map<UUID,Labor> laborMap =  new HashMap<>();
+
+        try {
+             materialMap = materialService.getMaterialsForProject(project);
+             laborMap = laborService.getLaborsForProject(project);
+        } catch (Exception e) {
+            System.out.println(e.getMessage());
+        }
+
+                System.out.println("--- Calcul du coût total ---");
+
+               ViewUtility.showLoading("Calcul du coût en cours");
+               System.out.println("📊 --- Résultat du Calcul ---");
+               System.out.println("🏗️ Nom du projet : " + project.getProjectName());
+               System.out.println("👤 Client : " + project.getClient().getName());
+               System.out.println("📍 Adresse du chantier : " + project.getClient().getAddress());
+               System.out.println("📏 Surface : "+ project.getArea() +" m²");
+
+               System.out.println("\n🛠️ --- Détail des Coûts ---");
+
+               // Matériaux
+               System.out.println("Les Matériaux :");
+               for (Map.Entry<UUID,Material> entry : materialMap.entrySet()){
+                   Material material = entry.getValue();
+                   System.out.println("   🧱 " +material.getUnitName() +" : " +CostCalculation.calculateMaterialCost(material)+ "€ (quantité : " +material.getQuantity()+" m², coût unitaire : "+ material.getUnitCost() +"€/m², qualité :"+material.getQualityCoefficient()+", transport : "+material.getTransportCost()+" €, taux TVA : "+material.getVatRate()+")");
+               }
+
+               System.out.println("   **Coût total des matériaux avant TVA : "+CostCalculation.calculateMaterialsCost(materialMap) +" €**");
+               if (!project.getVATRate().isNaN()){
+                 System.out.println("   **Coût total des matériaux avec TVA ("+project.getVATRate()+"%) : "+CostCalculation.calculateMaterialsWithTVA(materialMap,project.getVATRate())+" €**");
+               }
+
+               // Main-d'œuvre
+               System.out.println("\nLes Main-d'œuvre :");
+               for (Map.Entry<UUID,Labor> entry : laborMap.entrySet()){
+                   Labor labor = entry.getValue();
+               System.out.println("   👷‍♂️ "+labor.getUnitName() +": "+CostCalculation.calculateLaborCost(labor)+" € (taux horaire : "+labor.getHourlyRate()+" €/h, heures travaillées : "+labor.getWorkingHours()+" h, productivité : "+labor.getWorkerProductivity()+")");
+               }
+               System.out.println("   **Coût total de la main-d'œuvre avant TVA : "+CostCalculation.calculateLaborsCost(laborMap)+" €**");
+               if(!project.getVATRate().isNaN()) {
+                   System.out.println("   **Coût total de la main-d'œuvre avec TVA (20%) : " + CostCalculation.calculateLaborsWithTVA(laborMap, project.getVATRate()) + " €**");
+               }
+               // Total avant marge et marge bénéficiaire
+               System.out.println("\n📈 Coût total avant marge : "+CostCalculation.calculateCostBeforeMarge(materialMap,laborMap)+" €");
+               System.out.println("💼 Marge bénéficiaire (15%) : "+CostCalculation.calculateProfitMarge(materialMap,laborMap,project.getProfitMargin())+" €");
+
+               // Coût total final
+               System.out.println("\n💰 **Coût total final du projet : "+CostCalculation.calculateProjectCost(materialMap,laborMap,project.getProfitMargin())+" €**");
+
+
+    }
+
 
 
 

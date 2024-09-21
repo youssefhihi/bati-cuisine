@@ -26,7 +26,7 @@ public class ProjectDaoImpl implements ProjectDAO {
     public Map<UUID, Project> getInProgress() throws DatabaseException {
         Map<UUID, Project> projectMap = new HashMap<>();
         String sql = """
-            SELECT p.id, p.projectName, p.profitMargin, p.totalCost, p.area, p.projectStatus, 
+            SELECT p.id, p.projectName, p.profitMargin, p.totalCost, p.area, p.projectStatus,p.VATRate, 
                    c.id AS client_id, c.name, c.address, c.phone ,c.isProfessional
             FROM projects p
             JOIN clients c ON p.client_id = c.id

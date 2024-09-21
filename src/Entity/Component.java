@@ -8,25 +8,17 @@ public class Component {
     private String unitName;
     private ComponentType componentType;
     private Double vatRate;
-    private Double unitCost;
     private Project project;
 
-    public Component(String unitName, ComponentType componentType, Double vatRate, Double unitCost, Project project) {
+    public Component(String unitName, ComponentType componentType, Double vatRate, Project project) {
         this.unitName = unitName;
         this.componentType = componentType;
         this.vatRate = vatRate;
         this.project = project;
-        this.unitCost =unitCost;
     }
     public Component(){}
 
-    public Double getUnitCost() {
-        return unitCost;
-    }
 
-    public void setUnitCost(Double unitCost) {
-        this.unitCost = unitCost;
-    }
 
     public Project getProject() {
         return project;
