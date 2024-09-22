@@ -9,16 +9,25 @@ public class Quotation {
     private Date issueDate;
     private Date validityDate;
     private Boolean accepted;
+    private Project project;
 
-    public Quotation(UUID id, Double estimatedAmount, Date issueDate, Date validityDate, Boolean accepted) {
-        this.id = id;
+    public Quotation( Double estimatedAmount, Date issueDate, Date validityDate, Boolean accepted,Project project) {
         this.estimatedAmount = estimatedAmount;
         this.issueDate = issueDate;
         this.validityDate = validityDate;
         this.accepted = accepted;
+        this.project = project;
     }
 
     public Quotation(){}
+
+    public Project getProject() {
+        return project;
+    }
+
+    public void setProject(Project project) {
+        this.project = project;
+    }
 
     public Boolean getAccepted() {
         return accepted;

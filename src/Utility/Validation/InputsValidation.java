@@ -1,5 +1,7 @@
 package Utility.Validation;
 
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.Scanner;
 
 public class InputsValidation {
@@ -92,6 +94,30 @@ public class InputsValidation {
             }
         }
         return input;
+    }
+
+    public static Date isDateValid(String prompt) {
+        SimpleDateFormat dateFormat = new SimpleDateFormat("dd/MM/yyyy");
+        dateFormat.setLenient(false);
+
+        Date today = new Date();
+
+        Date inputDate = null;
+
+        while (true) {
+            System.out.print(prompt);
+            String input = scanner.nextLine();
+            try {
+                inputDate = dateFormat.parse(input);
+                if (!inputDate.before(today)) {
+                    return inputDate;
+                } else {
+                    System.out.println("La date ne peut pas être dans le passé.");
+                }
+            } catch (Exception e) {
+                System.out.println(" Veuillez entrer la date dans le format jj/mm/aaaa.");
+            }
+        }
     }
 
 
