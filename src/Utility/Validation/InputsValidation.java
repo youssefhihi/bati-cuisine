@@ -120,5 +120,32 @@ public class InputsValidation {
         }
     }
 
+    public static Date isDateValid(String prompt, Date date) {
+        SimpleDateFormat dateFormat = new SimpleDateFormat("dd/MM/yyyy");
+        dateFormat.setLenient(false);
+
+        Date today = new Date();
+
+        Date inputDate = null;
+
+        while (true) {
+            System.out.print(prompt);
+            String input = scanner.nextLine();
+            try {
+                inputDate = dateFormat.parse(input);
+                if (!inputDate.before(today)) {
+                    return inputDate;
+                } else if (!inputDate.before(date)) {
+                    System.out.println("La date ne peut pas être avant la date d'émission.");
+
+                } else {
+                    System.out.println("La date ne peut pas être dans le passé.");
+                }
+            } catch (Exception e) {
+                System.out.println(" Veuillez entrer la date dans le format jj/mm/aaaa.");
+            }
+        }
+    }
+
 
 }

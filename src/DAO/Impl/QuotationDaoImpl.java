@@ -25,8 +25,8 @@ public class QuotationDaoImpl implements QuotationDAO {
         String sql = "INSERT INTO quotations (estimatedAmount,issueDate,validityDate,accepted,project_id) VALUES (?,?,?,?,?)";
         try(PreparedStatement stmt = connection.prepareStatement(sql)){
             stmt.setDouble(1,quotation.getEstimatedAmount());
-            stmt.setObject(2,quotation.getIssueDate());
-            stmt.setObject(3,quotation.getEstimatedAmount());
+            stmt.setDate(2, new java.sql.Date(quotation.getIssueDate().getTime()));
+            stmt.setDate(3, new java.sql.Date(quotation.getValidityDate().getTime()));
             stmt.setBoolean(4,quotation.getAccepted());
             stmt.setObject(5,quotation.getProject().getId());
             stmt.executeUpdate();
@@ -38,7 +38,7 @@ public class QuotationDaoImpl implements QuotationDAO {
 
     @Override
     public Optional<Quotation> getForProject(Project project) throws  DatabaseException{
-        String sql = "SELECT id,estimatedAmount,issueDate,validityDate,accepted FROM quotation Where project_id = ? AND accepted = 1";
+        String sql = "SELECT id,estimatedAmount,issueDate,validityDate,accepted FROM quotations WHERE project_id = ? ";
         try(PreparedStatement stmt = connection.prepareStatement(sql)){
             stmt.setObject(1,project.getId());
             ResultSet rs = stmt.executeQuery();

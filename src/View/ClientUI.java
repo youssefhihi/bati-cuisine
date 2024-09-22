@@ -94,7 +94,10 @@ public class ClientUI {
         } catch (DatabaseException e) {
             System.err.println(e.getMessage());
         }
-
+        if (clients.isEmpty()) {
+            System.out.println("❗ Aucun client trouvé pour le nom fourni. Veuillez réessayer.");
+            return handleSearchClient();
+        }
         int index = 1;
         for (Map.Entry<UUID, Client> entry : clients.entrySet()) {
             Client client = entry.getValue();
@@ -106,7 +109,6 @@ public class ClientUI {
             System.out.println("╚═══════════════════════════════════════════╝");
             System.out.println(" ");
         }
-
         Integer selectedIndex = InputsValidation.isIntegerValid(
                 "Veuillez sélectionner un client par son numéro : ",
                 "❗ Index invalide. Veuillez réessayer.",
@@ -123,9 +125,5 @@ public class ClientUI {
     }
 
 
-
-    private void associateProjectToClient(Client client){
-
-    }
 
 }
