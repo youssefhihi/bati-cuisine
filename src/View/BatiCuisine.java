@@ -3,22 +3,13 @@ package View;
 import ConnectDB.DBConnection;
 import Entity.Project;
 import Exceptions.DatabaseException;
-import Services.Impl.ClientServiceImpl;
-import Services.Impl.LaborServiceImpl;
-import Services.Impl.MaterialServiceImpl;
-import Services.Impl.ProjectServiceImpl;
-import Services.Interfaces.ClientService;
-import Services.Interfaces.LaborService;
-import Services.Interfaces.MaterialService;
-import Services.Interfaces.ProjectService;
+import Services.Impl.*;
+import Services.Interfaces.*;
 import Utility.Validation.InputsValidation;
 import Utility.ViewUtility;
 
 import java.sql.Connection;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Scanner;
-import java.util.UUID;
+import java.util.*;
 
 public class BatiCuisine {
 
@@ -29,8 +20,11 @@ public class BatiCuisine {
     private static final ProjectService projectService = new ProjectServiceImpl(connection);
     private static final MaterialService materialService = new MaterialServiceImpl(connection);
     private static final LaborService laborService = new LaborServiceImpl(connection);
+    private static final QuotationService quotationService = new QuotationServiceImpl(connection);
     //UI
     private static final ClientUI clientUI = new ClientUI(scanner,clientService);
+    private static final QuotationUI quotationUI = new QuotationUI(scanner,quotationService);
+    private static final ProjectUI projectUI = new ProjectUI(scanner, projectService,laborService,materialService,quotationService,quotationUI,clientUI);
 
 
     public void batiCuisineApp(){
@@ -45,10 +39,10 @@ public class BatiCuisine {
             choice = ViewUtility.enterChoice(choice);
             switch (choice){
                 case 1:
-                    new ProjectUI(scanner, projectService,laborService,materialService,clientUI).handleCreateProject();
+                    projectUI.handleCreateProject();
                     break;
                 case 2:
-                    new ProjectUI(scanner, projectService,laborService,materialService,clientUI).showProjectInProgress();
+                    projectUI.showProjectInProgress();
                     break;
                 case 3:
                     calculateCost();
@@ -90,20 +84,19 @@ public class BatiCuisine {
             System.out.println("╚═══\uD83D\uDEE0\uFE0F\uD83D\uDD27\uD83D\uDD28\uD83D\uDD29\uD83D\uDD27\uD83D\uDD28\uD83D\uDD29\uD83D\uDD27\uD83D\uDD28\uD83D\uDD29\uD83D\uDD27\uD83D\uDD28\uD83D\uDD27\uD83D\uDD28\uD83D\uDD29\uD83D\uDD27\uD83D\uDD28══╝");
             System.out.println(" ");
         }
+        if (!projectMap.isEmpty()){
+            Integer selectedIndex = InputsValidation.isIntegerValid(
+                    "Veuillez sélectionner un projet par son numéro : ",
+                    "❗ Index invalide. Veuillez réessayer.",
+                    projectMap.size()
+            );
+            Optional<Project> project = projectMap.entrySet().stream()
+                    .skip(selectedIndex - 1)
+                    .findFirst()
+                    .map(Map.Entry::getValue);
+            project.ifPresent(projectUI::handleCalculCosts);
 
-        Integer selectedIndex = InputsValidation.isIntegerValid(
-                "Veuillez sélectionner un client par son numéro : ",
-                "❗ Index invalide. Veuillez réessayer.",
-                projectMap.size()
-        );
-
-        new ProjectUI(scanner, projectService,laborService,materialService,clientUI).handleCalculCosts(
-                projectMap.entrySet().stream()
-                        .skip(selectedIndex - 1)
-                        .findFirst()
-                        .map(Map.Entry::getValue).get()
-        );
-
+        }
     }
 
 

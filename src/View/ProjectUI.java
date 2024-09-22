@@ -1,13 +1,11 @@
 package View;
 
-import Entity.Client;
-import Entity.Labor;
-import Entity.Material;
-import Entity.Project;
+import Entity.*;
 import Exceptions.DatabaseException;
 import Services.Interfaces.LaborService;
 import Services.Interfaces.MaterialService;
 import Services.Interfaces.ProjectService;
+import Services.Interfaces.QuotationService;
 import Utility.CostCalculation;
 import Utility.Validation.InputsValidation;
 import Utility.ViewUtility;
@@ -24,14 +22,18 @@ public class ProjectUI {
     private final ProjectService projectService;
     private final LaborService laborService;
     private final MaterialService materialService;
+    private final QuotationService quotationService;
     private final  ClientUI clientUI;
+    private  final  QuotationUI quotationUI;
 
-    public ProjectUI(Scanner scanner, ProjectService projectService, LaborService laborService, MaterialService materialService,ClientUI clientUI){
+    public ProjectUI(Scanner scanner, ProjectService projectService, LaborService laborService, MaterialService materialService, QuotationService quotationService,QuotationUI quotationUI, ClientUI clientUI){
         this.scanner = scanner;
         this.projectService = projectService;
         this.clientUI = clientUI;
         this.laborService =laborService;
         this.materialService =materialService;
+        this.quotationService =quotationService;
+        this.quotationUI =quotationUI;
 
     }
 
@@ -258,7 +260,19 @@ public class ProjectUI {
                // Coût total final
                System.out.println("\n💰 **Coût total final du projet : "+CostCalculation.calculateProjectCost(materialMap,laborMap,project.getProfitMargin())+" €**");
 
-
+        try{
+          Optional<Quotation> quotation =  quotationService.getQuotationForProject(project);
+          if(quotation.isEmpty()){
+              String choice = ViewUtility.yesORno("ce projet n'a pas une devis vous douvrez créer un devis (oui/non) : ");
+              if(choice.equals("oui")){
+                quotationUI.createQuotation(project);
+              }
+          }else{
+              quotationUI.getQuotationForProject(project);
+          }
+        } catch (DatabaseException e) {
+            System.out.println(e.getMessage());
+        }
     }
 
 

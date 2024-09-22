@@ -15,7 +15,7 @@ CREATE TABLE projects (
     totalCost DOUBLE PRECISION ,
     area DOUBLE PRECISION NOT NULL,
     projectStatus projectStatus NOT NULL,
-    client_id UUID REFERENCES clients(id)
+    client_id UUID REFERENCES clients(id) ON DELETE CASCADE
 );
 
 CREATE TYPE componentType AS ENUM ('labor', 'material');
@@ -25,7 +25,7 @@ CREATE TABLE components (
     unitName VARCHAR(100) NOT NULL,
     componentType ComponentType NOT NULL,
     vatRate DOUBLE PRECISION,
-    project_id UUID REFERENCES Projects(Id)
+    project_id UUID REFERENCES Projects(Id) ON DELETE CASCADE
 );
 
 CREATE TABLE labors (
@@ -43,4 +43,13 @@ CREATE TABLE materials (
 
 
 
+CREATE TABLE quotations (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    estimatedAmount DOUBLE PRECISION NOT NULL,
+    issueDate DATE NOT NULL,
+     validityDate DATE NOT NULL,
+     accepted BOOLEAN DEFAULT FALSE,
+     project_id UUID REFERENCES Projects(Id) ON DELETE CASCADE
+
+);
 
