@@ -28,4 +28,10 @@ public class ProjectServiceImpl implements ProjectService {
     public Optional<Project> createProject(Project project)throws DatabaseException{
         return projectRepo.create(project);
     }
+
+    @Override
+    public  Map<UUID,Project> searchProject(String input) throws DatabaseException{
+        return projectRepo.search(input);
+    }
+
 }

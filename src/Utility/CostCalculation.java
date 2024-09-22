@@ -3,6 +3,7 @@ package Utility;
 import Entity.Labor;
 import Entity.Material;
 import java.util.Map;
+import java.util.UUID;
 
 public class CostCalculation {
 
@@ -12,7 +13,7 @@ public class CostCalculation {
     }
 
 
-    public static Double calculateMaterialsCost(Map<Integer,Material> materials) {
+    public static Double calculateMaterialsCost(Map<UUID,Material> materials) {
         return materials.values().stream().mapToDouble(CostCalculation::calculateMaterialCost).sum();
     }
 
@@ -22,28 +23,35 @@ public class CostCalculation {
     }
 
 
-    public static Double calculateLaborsCost(Map<Integer,Labor> labors) {
+    public static Double calculateLaborsCost(Map<UUID,Labor> labors) {
         return labors.values().stream().mapToDouble(CostCalculation::calculateLaborCost).sum();
     }
 
 
-    public static Double calculateCostWithTVA(Map<Integer,Material> materials, Map<Integer,Labor> labors, Double vatRate){
+    public static Double calculateMaterialsWithTVA(Map<UUID,Material> materials, Double vatRate){
+        return calculateMaterialsCost(materials) * (1 + vatRate / 100);
+    }
+
+    public static Double calculateLaborsWithTVA(Map<UUID,Labor> labors, Double vatRate){
+        return calculateLaborsCost(labors) * (1 + vatRate / 100);
+    }
+    public static Double calculateCostWithTVA(Map<UUID,Material> materials, Map<UUID,Labor> labors, Double vatRate){
         return (calculateMaterialsCost(materials) + calculateLaborsCost(labors)) * (1 + vatRate / 100);
     }
 
 
-    public static Double calculateCostBeforeMarge(Double materialsTotalCost, Double laborsTotalCost){
-        return materialsTotalCost + laborsTotalCost;
+    public static Double calculateCostBeforeMarge(Map<UUID,Material> materials, Map<UUID,Labor> labors){
+        return calculateMaterialsCost(materials) + calculateLaborsCost(labors);
     }
 
 
-    public static Double calculateProfitMarge(Double materialsTotalCost, Double laborsTotalCost, Double profitMarginPercentage){
-        return (materialsTotalCost + laborsTotalCost) * profitMarginPercentage / 100;
+    public static Double calculateProfitMarge(Map<UUID,Material> materials, Map<UUID,Labor> labors, Double profitMarginPercentage){
+        return calculateCostBeforeMarge(materials, labors) * profitMarginPercentage / 100;
     }
 
 
-    public static Double calculateProjectCost(Double materialsTotalCost, Double laborsTotalCost,Double profitMargin){
-        return calculateCostBeforeMarge(materialsTotalCost, laborsTotalCost) + calculateProfitMarge(materialsTotalCost, laborsTotalCost,profitMargin);
+    public static Double calculateProjectCost(Map<UUID,Material> materials, Map<UUID,Labor> labors,Double profitMargin){
+        return calculateCostBeforeMarge(materials, labors) + calculateProfitMarge(materials, labors,profitMargin);
     }
 
 

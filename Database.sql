@@ -25,7 +25,6 @@ CREATE TABLE components (
     unitName VARCHAR(100) NOT NULL,
     componentType ComponentType NOT NULL,
     vatRate DOUBLE PRECISION,
-    unitCost DOUBLE PRECISION,
     project_id UUID REFERENCES Projects(Id)
 );
 
@@ -38,7 +37,8 @@ CREATE TABLE labors (
 CREATE TABLE materials (
     transportCost DOUBLE PRECISION NOT NULL,
     quantity DOUBLE PRECISION NOT NULL,
-    qualityCoefficient DOUBLE PRECISION NOT NULL
+    qualityCoefficient DOUBLE PRECISION NOT NULL,
+	unitCost DOUBLE PRECISION
 ) INHERITS (components);
 
 

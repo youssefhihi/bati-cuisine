@@ -23,10 +23,39 @@ public class ProjectDaoImpl implements ProjectDAO {
     }
 
     @Override
+    public Map<UUID,Project> search(String input) throws DatabaseException{
+        Map<UUID, Project> projectMap = new HashMap<>();
+        String sql = """
+            SELECT p.id, p.projectName, p.profitMargin, p.totalCost, p.area, p.projectStatus,p.VATRate, 
+                   c.id AS client_id, c.name, c.address, c.phone ,c.isProfessional
+            FROM projects p
+            JOIN clients c ON p.client_id = c.id
+            WHERE p.projectName ILIKE  ? OR c.name ILIKE  ? OR c.address ILIKE  ? OR  c.phone ILIKE  ?;
+            """;
+        try (PreparedStatement stmt = connection.prepareStatement(sql)) {
+            for (int i = 1; i < 5; i++) {
+                stmt.setString(i, "%" +input+"%");
+            }
+            try (ResultSet rs = stmt.executeQuery()) {
+                while (rs.next()) {
+                    Project project = mapResultSet(rs);
+                    projectMap.put(project.getId(), project);
+                }
+            }
+
+        } catch (SQLException e) {
+            throw new DatabaseException("❗Error occurred while searching projects"+ e.getMessage(), e);
+        }
+
+        return projectMap;
+    }
+
+
+    @Override
     public Map<UUID, Project> getInProgress() throws DatabaseException {
         Map<UUID, Project> projectMap = new HashMap<>();
         String sql = """
-            SELECT p.id, p.projectName, p.profitMargin, p.totalCost, p.area, p.projectStatus, 
+            SELECT p.id, p.projectName, p.profitMargin, p.totalCost, p.area, p.projectStatus,p.VATRate, 
                    c.id AS client_id, c.name, c.address, c.phone ,c.isProfessional
             FROM projects p
             JOIN clients c ON p.client_id = c.id

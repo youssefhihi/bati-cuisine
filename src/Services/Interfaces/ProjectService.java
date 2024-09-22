@@ -10,4 +10,6 @@ import java.util.UUID;
 public interface ProjectService {
     Map<UUID, Project> getProjectInProgress() throws DatabaseException;
     Optional<Project> createProject(Project project) throws DatabaseException ;
+    Map<UUID,Project> searchProject(String input) throws DatabaseException;
+
 }
