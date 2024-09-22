@@ -27,4 +27,9 @@ public class ProjectRepoImpl implements ProjectRepo {
     public Optional<Project> create(Project project)throws DatabaseException {
         return projectDAO.create(project);
     }
+    @Override
+    public  Map<UUID,Project> search(String input) throws DatabaseException{
+        return projectDAO.search(input);
+    }
+
 }

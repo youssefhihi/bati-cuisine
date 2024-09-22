@@ -75,10 +75,7 @@ public class ClientUI {
         }catch (DatabaseException e){
             System.err.println("❗ Error occurred while adding the client: " + e.getMessage());
         }
-//       String choice = ViewUtility.yesORno("Souhaitez-vous continuer avec ce client ? (oui/non) : ");
-//        if(choice.equals("oui")){
-//            associateProjectToClient(clientInserted);
-//        }
+
         return clientInserted;
 
     }
@@ -121,12 +118,6 @@ public class ClientUI {
                     .findFirst()
                     .map(Map.Entry::getValue)
                     .orElse(null);
-
-
-//        String choiceContinue = ViewUtility.yesORno("Souhaitez-vous continuer avec ce client ? (oui/non) : ");
-//        if (choiceContinue.equals("oui")){
-//            associateProjectToClient(choosedClient);
-//        }
 
 
     }

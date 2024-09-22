@@ -97,6 +97,7 @@ public class ProjectUI {
        } catch (DatabaseException | SQLException e) {
            System.err.println(e.getMessage());
        }
+       
     }
     private Map<UUID, Material> handleCreateMaterial() {
         Map<UUID,Material> materials = new HashMap<>();
@@ -287,7 +288,7 @@ public class ProjectUI {
             System.out.println(" ");
         }
 
-        }
+    }
 
 
 }
