@@ -23,7 +23,7 @@ public class BatiCuisine {
     private static final QuotationService quotationService = new QuotationServiceImpl(connection);
     //UI
     private static final ClientUI clientUI = new ClientUI(scanner,clientService);
-    private static final QuotationUI quotationUI = new QuotationUI(scanner,quotationService);
+    private static final QuotationUI quotationUI = new QuotationUI(scanner,quotationService,projectService);
     private static final ProjectUI projectUI = new ProjectUI(scanner, projectService,laborService,materialService,quotationService,quotationUI,clientUI);
 
 
@@ -58,13 +58,12 @@ public class BatiCuisine {
 
 
     private void calculateCost(){
-                    ViewUtility.showLoading("💸 Calcul du coût du projet en cours");
         Map<UUID, Project> projectMap = new HashMap<>();
         String input = InputsValidation.isStringValid(
                 "~~~> \uD83C\uDFD7\uFE0F  Entrez le key pour chercher une  projet : "
                 ,"❗Le nom du projet ne peut pas être vide.");
         try{
-           projectMap = projectService.searchProject(input);
+            projectMap = projectService.searchProject(input);
         } catch (DatabaseException e) {
             System.err.println(e.getMessage());
         }
@@ -96,9 +95,9 @@ public class BatiCuisine {
                     .map(Map.Entry::getValue);
             project.ifPresent(projectUI::handleCalculCosts);
 
+        }else{
+                System.out.println("❗ Aucun Projet trouvé pour le nom fourni. Veuillez réessayer.");
         }
     }
-
-
-
 }
+

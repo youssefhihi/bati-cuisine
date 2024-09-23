@@ -2,6 +2,8 @@ package Utility;
 
 import Entity.Labor;
 import Entity.Material;
+import Entity.Project;
+
 import java.util.Map;
 import java.util.UUID;
 
@@ -29,30 +31,49 @@ public class CostCalculation {
 
 
     public static Double calculateMaterialsWithTVA(Map<UUID,Material> materials, Double vatRate){
+        if(vatRate == null){
+            return calculateMaterialsCost(materials);
+        }else{
         return calculateMaterialsCost(materials) * (1 + vatRate / 100);
+        }
     }
 
     public static Double calculateLaborsWithTVA(Map<UUID,Labor> labors, Double vatRate){
-        return calculateLaborsCost(labors) * (1 + vatRate / 100);
-    }
-    public static Double calculateCostWithTVA(Map<UUID,Material> materials, Map<UUID,Labor> labors, Double vatRate){
-        return (calculateMaterialsCost(materials) + calculateLaborsCost(labors)) * (1 + vatRate / 100);
-    }
+        if(vatRate == null){
+          return   calculateLaborsCost(labors);
+        }else{
+            return  calculateLaborsCost(labors) * (1 + vatRate / 100);
+        }
 
-
-    public static Double calculateCostBeforeMarge(Map<UUID,Material> materials, Map<UUID,Labor> labors){
-        return calculateMaterialsCost(materials) + calculateLaborsCost(labors);
     }
 
-
-    public static Double calculateProfitMarge(Map<UUID,Material> materials, Map<UUID,Labor> labors, Double profitMarginPercentage){
-        return calculateCostBeforeMarge(materials, labors) * profitMarginPercentage / 100;
+    public static Double calculateCostBeforeMarge(Map<UUID,Material> materials, Map<UUID,Labor> labors,Double vatRate){
+        return calculateMaterialsWithTVA(materials,vatRate) + calculateLaborsWithTVA(labors,vatRate);
     }
 
 
-    public static Double calculateProjectCost(Map<UUID,Material> materials, Map<UUID,Labor> labors,Double profitMargin){
-        return calculateCostBeforeMarge(materials, labors) + calculateProfitMarge(materials, labors,profitMargin);
+    public static Double calculateProfitMarge(Map<UUID,Material> materials, Map<UUID,Labor> labors, Double profitMarginPercentage ,Double vatRate){
+        return calculateCostBeforeMarge(materials, labors,vatRate) * profitMarginPercentage / 100;
     }
+
+
+    public static Double calculateProjectCost(Map<UUID, Material> materials, Map<UUID, Labor> labors, Project project) {
+        double totalCost;
+
+        if (project.getProfitMargin() == null) {
+            totalCost = calculateCostBeforeMarge(materials, labors, project.getVATRate());
+        } else {
+            totalCost = calculateCostBeforeMarge(materials, labors, project.getVATRate())
+                    + calculateProfitMarge(materials, labors, project.getProfitMargin(), project.getVATRate());
+        }
+
+        if (Boolean.TRUE.equals(project.getClient().getIsProfessional())) {
+            totalCost *= 0.9;
+        }
+
+        return totalCost;
+    }
+
 
 
 

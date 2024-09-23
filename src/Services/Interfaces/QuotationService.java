@@ -10,5 +10,7 @@ public interface QuotationService {
 
     void createQuotation(Quotation quotation) throws DatabaseException;
     Optional<Quotation> getQuotationForProject(Project project) throws DatabaseException;
+    void acceptQuotation(Quotation quotation) throws DatabaseException;
+
 
 }

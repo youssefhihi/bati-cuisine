@@ -25,13 +25,22 @@ public class ProjectServiceImpl implements ProjectService {
     }
 
     @Override
-    public Optional<Project> createProject(Project project)throws DatabaseException{
+    public Optional<Project> createProject(Project project) throws DatabaseException{
         return projectRepo.create(project);
     }
 
     @Override
     public  Map<UUID,Project> searchProject(String input) throws DatabaseException{
         return projectRepo.search(input);
+    }
+    @Override
+    public  void updateStatusOfProject(UUID id) throws DatabaseException {
+        Boolean isUpdated = projectRepo.UpdateStatus(id);
+        if (Boolean.TRUE.equals(isUpdated)) {
+            System.out.println("✅ Project canceled successfully!");
+        } else {
+            System.out.println("❗ Failed to canceled Project. An unexpected error occurred.");
+        }
     }
 
 }

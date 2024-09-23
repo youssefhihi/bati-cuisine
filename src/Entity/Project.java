@@ -88,4 +88,16 @@ public class Project {
     public void setProjectStatus(ProjectStatus projectStatus) {
         this.projectStatus = projectStatus;
     }
+
+    @Override
+    public String toString() {
+        return "Project{" +
+                "VATRate=" + VATRate +
+                ", area=" + area +
+                ", totalCost=" + totalCost +
+                ", profitMargin=" + profitMargin +
+                ", projectName='" + projectName + '\'' +
+                ", projectStatus=" + projectStatus +
+                '}';
+    }
 }

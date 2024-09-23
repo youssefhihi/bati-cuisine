@@ -10,8 +10,8 @@ CREATE TYPE projectStatus AS ENUM ('inProgress', 'completed', 'canceled');
 CREATE TABLE projects (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     projectName VARCHAR(255) NOT NULL,
-    profitMargin DOUBLE PRECISION,
-    VATRate DOUBLE PRECISION,
+    profitMargin DOUBLE PRECISION DEFAULT NULL,
+    VATRate DOUBLE PRECISION DEFAULT NULL,
     totalCost DOUBLE PRECISION ,
     area DOUBLE PRECISION NOT NULL,
     projectStatus projectStatus NOT NULL,

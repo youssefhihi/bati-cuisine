@@ -10,5 +10,7 @@ public interface QuotationDAO {
 
     Boolean create(Quotation quotation) throws DatabaseException;
     Optional<Quotation> getForProject(Project project) throws DatabaseException;
+    Boolean acceptQuotation(Quotation quotation) throws DatabaseException;
+
 }
 

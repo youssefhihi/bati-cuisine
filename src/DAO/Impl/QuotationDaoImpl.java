@@ -50,7 +50,17 @@ public class QuotationDaoImpl implements QuotationDAO {
             throw new DatabaseException("❗Error occurred while getting quotation"+ e.getMessage(), e);
         }
     }
-
+    @Override
+    public Boolean acceptQuotation(Quotation quotation) throws DatabaseException{
+        String sql = "UPDATE quotations SET accepted = true WHERE id = ?";
+        try(PreparedStatement stmt = connection.prepareStatement(sql)){
+            stmt.setObject(1 , quotation.getId());
+            stmt.executeUpdate();
+            return  true;
+        }catch (Exception e){
+            throw new DatabaseException("❗Error occurred while getting quotation"+ e.getMessage(), e);
+        }
+    }
 
     private  Quotation mapResultSet(ResultSet rs,Project project) throws SQLException {
         Quotation quotation = new Quotation(
@@ -63,4 +73,6 @@ public class QuotationDaoImpl implements QuotationDAO {
         quotation.setId((UUID) rs.getObject("id"));
         return quotation;
     }
+
+
 }

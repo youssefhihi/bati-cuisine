@@ -40,7 +40,7 @@ public class LaborDaoImpl implements LaborDAO {
                     stmt.setDouble(3,labor.getVatRate());
                     stmt.setObject(4,labor.getProject().getId());
                     stmt.setDouble(5,labor.getHourlyRate());
-                    stmt.setDouble(6,labor.getHourlyRate());
+                    stmt.setDouble(6,labor.getWorkingHours());
                     stmt.setDouble(7,labor.getWorkerProductivity());
                     stmt.executeUpdate();
                 }

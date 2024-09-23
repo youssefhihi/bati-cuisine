@@ -48,4 +48,14 @@ public class Material extends Component {
     public void setTransportCost(Double transportCost) {
         this.transportCost = transportCost;
     }
+
+    @Override
+    public String toString() {
+        return "Material{" +
+                "transportCost=" + transportCost +
+                ", quantity=" + quantity +
+                ", qualityCoefficient=" + qualityCoefficient +
+                ", unitCost=" + unitCost +
+                '}';
+    }
 }

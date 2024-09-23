@@ -9,6 +9,7 @@ import Repositories.Interfaces.QuotationRepo;
 
 import java.sql.Connection;
 import java.util.Optional;
+import java.util.UUID;
 
 public class QuotationRepoImpl implements QuotationRepo {
 
@@ -27,4 +28,11 @@ public class QuotationRepoImpl implements QuotationRepo {
     public Optional<Quotation> getForProject(Project project) throws  DatabaseException{
         return quotationDAO.getForProject(project);
     }
+
+    @Override
+    public Boolean acceptQuotation(Quotation quotation)throws DatabaseException{
+        return quotationDAO.acceptQuotation(quotation);
+    }
+
+
 }

@@ -19,11 +19,13 @@ import java.util.Scanner;
 public class QuotationUI {
     private final Scanner scanner;
     private final QuotationService quotationService;
+    private  final  ProjectService projectService;
 
 
-    public QuotationUI(Scanner scanner,QuotationService quotationService){
+    public QuotationUI(Scanner scanner,QuotationService quotationService,ProjectService projectService){
         this.scanner = scanner;
         this.quotationService = quotationService;
+        this.projectService = projectService;
 
     }
 
@@ -66,17 +68,25 @@ public class QuotationUI {
                 System.out.println("\n💶 --- Détails du Devis ---");
                 System.out.println("🗓️ Date d'émission : " + q.getIssueDate());
                 System.out.println("📅 Date de validité : " + q.getValidityDate());
-                System.out.println("💵 Montant estimé : " + String.format("%.2f €", q.getEstimatedAmount()));
-                System.out.println("✔️ Devis accepté : " + (q.getAccepted() ? "Oui" : "Non"));
+                System.out.println("💵 Montant estimé : " +q.getEstimatedAmount() +"€");
+                System.out.println("✔️ Devis accepté : " + (Boolean.TRUE.equals(q.getAccepted()) ? "Oui" : "Non"));
 
-                LocalDate validityDate = q.getValidityDate().toInstant()
-                        .atZone(ZoneId.systemDefault())
-                        .toLocalDate();
 
-                if(LocalDate.now().isBefore(validityDate) && q.getAccepted().equals(false)){
-                    String choice =  ViewUtility.yesORno("Pouvez-vous accepter ce devis ? oui/non");
+
+                if(new Date().before(q.getValidityDate()) && new Date().after(q.getIssueDate()) && q.getAccepted().equals(false)){
+                    String choice =  ViewUtility.yesORno("Pouvez-vous accepter ce devis ? (oui/non) : ");
                     if (choice.equals("oui")){
-//                        quotationService.acceptQuotation(q);
+                        try {
+                            quotationService.acceptQuotation(q);
+                        }catch (DatabaseException e){
+                            System.out.println(e.getMessage());
+                        }
+                    }else{
+                        try {
+                            projectService.updateStatusOfProject(project.getId());
+                        } catch (DatabaseException e) {
+                            System.out.println(e.getMessage());
+                        }
                     }
                 }
             } else {

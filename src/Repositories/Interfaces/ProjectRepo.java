@@ -12,6 +12,7 @@ public interface ProjectRepo {
     Map<UUID, Project> getInProgress() throws DatabaseException;
     Optional<Project> create(Project project) throws DatabaseException;
     Map<UUID,Project> search(String input) throws DatabaseException;
+    Boolean UpdateStatus(UUID id) throws DatabaseException;
 
 
 }

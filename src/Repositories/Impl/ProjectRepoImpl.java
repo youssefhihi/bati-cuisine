@@ -31,5 +31,8 @@ public class ProjectRepoImpl implements ProjectRepo {
     public  Map<UUID,Project> search(String input) throws DatabaseException{
         return projectDAO.search(input);
     }
-
+    @Override
+    public Boolean UpdateStatus(UUID id) throws DatabaseException{
+        return projectDAO.UpdateStatus(id);
+    }
 }

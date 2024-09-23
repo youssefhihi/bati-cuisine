@@ -83,8 +83,9 @@ public class ProjectUI {
                 CostCalculation.calculateProjectCost(
                 materials,
                 labors,
-                project.getProfitMargin()
+                project
         ));
+        System.err.println(project);
 
        try {
            Optional<Project> insertedProject = projectService.createProject(project);
@@ -212,7 +213,6 @@ public class ProjectUI {
     public void handleCalculCosts(Project project){
         Map<UUID,Material> materialMap = new HashMap<>();
         Map<UUID,Labor> laborMap =  new HashMap<>();
-
         try {
              materialMap = materialService.getMaterialsForProject(project);
              laborMap = laborService.getLaborsForProject(project);
@@ -222,7 +222,7 @@ public class ProjectUI {
 
                 System.out.println("--- Calcul du coût total ---");
 
-               ViewUtility.showLoading("Calcul du coût en cours");
+               ViewUtility.showLoading("💸 Calcul du coût du projet en cours");
                System.out.println("📊 --- Résultat du Calcul ---");
                System.out.println("🏗️ Nom du projet : " + project.getProjectName());
                System.out.println("👤 Client : " + project.getClient().getName());
@@ -239,9 +239,7 @@ public class ProjectUI {
                }
 
                System.out.println("   **Coût total des matériaux avant TVA : "+CostCalculation.calculateMaterialsCost(materialMap) +" €**");
-               if (!project.getVATRate().isNaN()){
-                 System.out.println("   **Coût total des matériaux avec TVA ("+project.getVATRate()+"%) : "+CostCalculation.calculateMaterialsWithTVA(materialMap,project.getVATRate())+" €**");
-               }
+               System.out.println("   **Coût total des matériaux avec TVA ("+project.getVATRate()+"%) : "+CostCalculation.calculateMaterialsWithTVA(materialMap,project.getVATRate())+" €**");
 
                // Main-d'œuvre
                System.out.println("\nLes Main-d'œuvre :");
@@ -250,15 +248,13 @@ public class ProjectUI {
                System.out.println("   👷‍♂️ "+labor.getUnitName() +": "+CostCalculation.calculateLaborCost(labor)+" € (taux horaire : "+labor.getHourlyRate()+" €/h, heures travaillées : "+labor.getWorkingHours()+" h, productivité : "+labor.getWorkerProductivity()+")");
                }
                System.out.println("   **Coût total de la main-d'œuvre avant TVA : "+CostCalculation.calculateLaborsCost(laborMap)+" €**");
-               if(!project.getVATRate().isNaN()) {
-                   System.out.println("   **Coût total de la main-d'œuvre avec TVA (20%) : " + CostCalculation.calculateLaborsWithTVA(laborMap, project.getVATRate()) + " €**");
-               }
+               System.out.println("   **Coût total de la main-d'œuvre avec TVA ("+project.getVATRate()+"%) : " + CostCalculation.calculateLaborsWithTVA(laborMap, project.getVATRate()) + " €**");
                // Total avant marge et marge bénéficiaire
-               System.out.println("\n📈 Coût total avant marge : "+CostCalculation.calculateCostBeforeMarge(materialMap,laborMap)+" €");
-               System.out.println("💼 Marge bénéficiaire (15%) : "+CostCalculation.calculateProfitMarge(materialMap,laborMap,project.getProfitMargin())+" €");
+               System.out.println("\n📈 Coût total avant marge : "+CostCalculation.calculateCostBeforeMarge(materialMap,laborMap,project.getVATRate())+" €");
+               System.out.println("💼 Marge bénéficiaire ("+project.getProfitMargin()+"%) : "+CostCalculation.calculateProfitMarge(materialMap,laborMap,project.getProfitMargin(),project.getVATRate())+" €");
 
                // Coût total final
-               System.out.println("\n💰 **Coût total final du projet : "+CostCalculation.calculateProjectCost(materialMap,laborMap,project.getProfitMargin())+" €**");
+               System.out.println("\n💰 **Coût total final du projet : "+CostCalculation.calculateProjectCost(materialMap,laborMap,project)+" €**");
 
         try{
           Optional<Quotation> quotation =  quotationService.getQuotationForProject(project);
@@ -300,6 +296,10 @@ public class ProjectUI {
             System.out.println("    \uD83D\uDCCA  Statut du projet: " + ViewUtility.getProjectStatus(project.getProjectStatus()))    ;
             System.out.println("╚═══\uD83D\uDEE0\uFE0F\uD83D\uDD27\uD83D\uDD28\uD83D\uDD29\uD83D\uDD27\uD83D\uDD28\uD83D\uDD29\uD83D\uDD27\uD83D\uDD28\uD83D\uDD29\uD83D\uDD27\uD83D\uDD28\uD83D\uDD27\uD83D\uDD28\uD83D\uDD29\uD83D\uDD27\uD83D\uDD28══╝");
             System.out.println(" ");
+        }
+
+        if(projects.isEmpty()){
+            System.out.println("❗ Aucun Projet trouvé avec status en cours ");
         }
 
     }

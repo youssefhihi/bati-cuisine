@@ -60,4 +60,15 @@ public class Component {
     public void setVatRate(Double vatRate) {
         this.vatRate = vatRate;
     }
+
+    @Override
+    public String toString() {
+        return "Component{" +
+                "id=" + id +
+                ", unitName='" + unitName + '\'' +
+                ", componentType=" + componentType +
+                ", vatRate=" + vatRate +
+                ", project=" + project +
+                '}';
+    }
 }

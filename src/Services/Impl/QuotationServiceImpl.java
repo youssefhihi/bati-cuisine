@@ -30,4 +30,14 @@ public class QuotationServiceImpl implements QuotationService {
     public Optional<Quotation> getQuotationForProject(Project project) throws DatabaseException{
         return quotationRepo.getForProject(project);
     }
+
+    @Override
+    public void acceptQuotation(Quotation quotation) throws  DatabaseException{
+        Boolean isUpdated = quotationRepo.acceptQuotation(quotation);
+        if(Boolean.TRUE.equals(isUpdated)){
+            System.out.println("✅ Quotation Accepted successfully!");
+        } else {
+            System.out.println("❗ Failed to accept Quotation. An unexpected error occurred.");
+        }
+    }
 }

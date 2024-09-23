@@ -50,6 +50,19 @@ public class ProjectDaoImpl implements ProjectDAO {
         return projectMap;
     }
 
+    @Override
+    public Boolean UpdateStatus(UUID id) throws DatabaseException{
+        String sql = "UPDATE projects SET projectStatus = ? WHERE id = ?";
+        try(PreparedStatement stmt = connection.prepareStatement(sql)){
+            stmt.setString(1 , ProjectStatus.canceled.name());
+            stmt.setObject(2,id);
+            stmt.executeUpdate();
+            return  true;
+        }catch (Exception e){
+            throw new DatabaseException("❗Error occurred while updating status of project"+ e.getMessage(), e);
+        }
+    }
+
 
     @Override
     public Map<UUID, Project> getInProgress() throws DatabaseException {
@@ -91,14 +104,23 @@ public class ProjectDaoImpl implements ProjectDAO {
                     FROM inserted_project
                     JOIN clients c ON inserted_project.client_id = c.id;
                 """;
+        System.err.println(project);
         try(PreparedStatement stmt = connection.prepareStatement(sql)){
             stmt.setString(1,project.getProjectName());
-            stmt.setDouble(2,project.getProfitMargin());
+            if (project.getProfitMargin() != null){
+                stmt.setDouble(2,project.getProfitMargin());
+            }else{
+                stmt.setNull(2, java.sql.Types.DOUBLE);
+            }
             stmt.setDouble(3,project.getTotalCost());
             stmt.setString(4,project.getProjectStatus().name());
             stmt.setDouble(5,project.getArea());
-            stmt.setDouble(6, project.getVATRate());
-            stmt.setObject(7,project.getClient().getId());
+
+            if (project.getVATRate() != null) {
+                stmt.setDouble(6, project.getVATRate());
+            } else {
+                stmt.setNull(6, java.sql.Types.DOUBLE);
+            }            stmt.setObject(7,project.getClient().getId());
             ResultSet rs = stmt.executeQuery();
             if (rs.next()){
 
