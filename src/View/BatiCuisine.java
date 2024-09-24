@@ -14,7 +14,7 @@ import java.util.*;
 public class BatiCuisine {
 
     private static final Scanner scanner = new Scanner(System.in);
-    private static final Connection connection = DBConnection.connect();
+    private static final Connection connection = DBConnection.getInstance().getConnection();
     //services
     private static final ClientService clientService = new ClientServiceImpl(connection);
     private static final ProjectService projectService = new ProjectServiceImpl(connection);

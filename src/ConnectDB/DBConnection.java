@@ -9,20 +9,33 @@ public class DBConnection {
     private static final String USER = "postgres";
     private static final String PASSWORD = "password";
 
-    public static Connection connect() {
-        Connection connection = null;
+    private static DBConnection instance;
+    private Connection connection;
+
+    private DBConnection() {
         try {
             Class.forName("org.postgresql.Driver");
-            connection = DriverManager.getConnection(URL, USER, PASSWORD);
+            this.connection = DriverManager.getConnection(URL, USER, PASSWORD);
             System.out.println("Connected to the PostgreSQL database successfully!");
         } catch (ClassNotFoundException | SQLException e) {
             System.out.println("Connection failed: " + e.getMessage());
         }
-        return connection;
     }
 
-    public static void main(String[] args) {
-        connect();
+    public static DBConnection getInstance() {
+        if (instance == null) {
+            synchronized (DBConnection.class) {
+                if (instance == null) {
+                    instance = new DBConnection();
+                }
+            }
+        }
+        return instance;
     }
+
+    public Connection getConnection() {
+        return this.connection;
+    }
+
 
 }

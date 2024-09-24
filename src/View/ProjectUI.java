@@ -85,7 +85,6 @@ public class ProjectUI {
                 labors,
                 project
         ));
-        System.err.println(project);
 
        try {
            Optional<Project> insertedProject = projectService.createProject(project);

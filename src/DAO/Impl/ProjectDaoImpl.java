@@ -52,7 +52,7 @@ public class ProjectDaoImpl implements ProjectDAO {
 
     @Override
     public Boolean UpdateStatus(UUID id) throws DatabaseException{
-        String sql = "UPDATE projects SET projectStatus = ? WHERE id = ?";
+        String sql = "UPDATE projects SET projectStatus = ?::projectStatus WHERE id = ?";
         try(PreparedStatement stmt = connection.prepareStatement(sql)){
             stmt.setString(1 , ProjectStatus.canceled.name());
             stmt.setObject(2,id);
@@ -104,7 +104,7 @@ public class ProjectDaoImpl implements ProjectDAO {
                     FROM inserted_project
                     JOIN clients c ON inserted_project.client_id = c.id;
                 """;
-        System.err.println(project);
+
         try(PreparedStatement stmt = connection.prepareStatement(sql)){
             stmt.setString(1,project.getProjectName());
             if (project.getProfitMargin() != null){
